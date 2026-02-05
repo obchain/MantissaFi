@@ -6,7 +6,7 @@ test = "test"
 script = "script"
 
 # Solidity compiler settings
-solc = "0.8.25"
+solc = "0.8.24"
 via_ir = true
 
 # Optimizer settings

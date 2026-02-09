@@ -6,8 +6,12 @@ on:
   pull_request:
     branches: [main]
 
+env:
+  FOUNDRY_PROFILE: ci
+
 jobs:
   build:
+    name: Build
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -17,19 +21,76 @@ jobs:
       - name: Install Foundry
         uses: foundry-rs/foundry-toolchain@v1
 
-      - name: Build
-        run: forge build
+      - name: Build contracts
+        run: forge build --sizes
 
-      - name: Test
+      - name: Check contract sizes
+        run: |
+          forge build --sizes 2>&1 | tee build-output.txt
+          if grep -q "is above the contract size limit" build-output.txt; then
+            echo "Contract size limit exceeded!"
+            exit 1
+          fi
+
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+
+      - name: Run tests
         run: forge test -vvv
 
+      - name: Run tests with gas report
+        run: forge test --gas-report
+
   lint:
+    name: Lint & Format
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          submodules: recursive
 
       - name: Install Foundry
         uses: foundry-rs/foundry-toolchain@v1
 
       - name: Check formatting
         run: forge fmt --check
+
+      - name: Run Solhint (if available)
+        run: |
+          if [ -f ".solhint.json" ] || [ -f "package.json" ]; then
+            npm install -g solhint 2>/dev/null || true
+            solhint 'src/**/*.sol' 2>/dev/null || echo "Solhint not configured, skipping"
+          else
+            echo "No solhint config found, skipping"
+          fi
+
+  slither:
+    name: Security Analysis
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+
+      - name: Build for Slither
+        run: forge build
+
+      - name: Run Slither
+        uses: crytic/slither-action@v0.4.0
+        continue-on-error: true
+        with:
+          fail-on: none
+          slither-args: --filter-paths "lib/" --exclude-dependencies

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
-import {SD59x18, sd} from "@prb/math/SD59x18.sol";
+import { SD59x18, sd } from "@prb/math/SD59x18.sol";
 
 /// @title CumulativeNormal
 /// @notice Cumulative normal distribution function Φ(x)

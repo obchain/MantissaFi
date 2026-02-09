@@ -1,37 +1,36 @@
 # Security Policy
 
-## Reporting a Vulnerability
+## Reporting Vulnerabilities
 
-We take security vulnerabilities seriously. If you discover a security issue, please report it responsibly.
+**Do not** create public issues for security vulnerabilities.
 
-### How to Report
+Email: security@mantissafi.com
 
-1. **DO NOT** create a public GitHub issue for security vulnerabilities
-2. Email security concerns to: [security@mantissafi.com](mailto:security@mantissafi.com)
-3. Include detailed steps to reproduce the vulnerability
-4. Allow up to 48 hours for initial response
+### Response Timeline
+- Initial response: 48 hours
+- Status update: 5 business days
+- Resolution target: 90 days
 
-### Scope
+## Threat Model
 
-The following are in scope for security reports:
+### Oracle Manipulation
+- **Risk**: Stale prices, flash loan attacks
+- **Mitigation**: Staleness checks, TWAP, multiple oracles
 
-- Smart contract vulnerabilities
-- Oracle manipulation vectors
-- Access control bypasses
-- Reentrancy vulnerabilities
-- Flash loan attack vectors
-- Precision loss exploits
+### Flash Loan Attacks
+- **Risk**: Price manipulation during exercise
+- **Mitigation**: Snapshot-based pricing, reentrancy guards
 
-### Bug Bounty
+### Precision Loss
+- **Risk**: Systematic mispricing from rounding
+- **Mitigation**: Fixed-point math, conservative rounding
 
-Details about our bug bounty program will be announced after mainnet launch.
+### Access Control
+- **Risk**: Unauthorized admin actions
+- **Mitigation**: Role-based access, timelocks
 
 ## Security Audits
 
-- [ ] Internal audit (pending)
-- [ ] External audit (pending)
-- [ ] Formal verification with Certora (pending)
-
-## Known Issues
-
-None at this time.
+- [ ] Internal review
+- [ ] External audit
+- [ ] Formal verification

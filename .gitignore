@@ -1,15 +1,40 @@
-# Remix compiler artifacts
-**/artifacts/
-**/artifacts/**
+# Compiler files
+cache/
+out/
 
-# Remix plugin state folders
-deps/
-states/
+# Ignores development broadcast logs
+broadcast/
+!/broadcast/*/31337/
+
+# Docs
+docs/
+
+# Dotenv file
+.env
+.env.local
+
+# Coverage
+lcov.info
+coverage/
+
+# Node
+node_modules/
 
 # Debug info
 *.dbg.json
 *.tsbuildinfo
 
-# Optional
-.env
-.env.local
+# IDE
+.idea/
+.vscode/
+
+# OS
+.DS_Store
+
+# Certora
+.certora*
+certora_*
+
+# Analysis
+analysis/slither/
+analysis/mythril/

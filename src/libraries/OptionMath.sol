@@ -65,4 +65,47 @@ library OptionMath {
         // ln(S/K) = ln(S) - ln(K) to avoid intermediate overflow
         logRatio = spot.ln().sub(strike.ln());
     }
+
+    /// @notice Checks if an option is in-the-money
+    /// @param spot The spot price of the underlying asset (SD59x18)
+    /// @param strike The strike price of the option (SD59x18)
+    /// @param isCall True for call option, false for put option
+    /// @return True if the option is ITM
+    function isITM(SD59x18 spot, SD59x18 strike, bool isCall) internal pure returns (bool) {
+        if (isCall) {
+            // Call is ITM when S > K
+            return spot.gt(strike);
+        } else {
+            // Put is ITM when K > S
+            return strike.gt(spot);
+        }
+    }
+
+    /// @notice Computes the intrinsic value of an option
+    /// @dev Intrinsic value is the payoff if exercised immediately
+    /// @param spot The spot price of the underlying asset (SD59x18)
+    /// @param strike The strike price of the option (SD59x18)
+    /// @param isCall True for call option, false for put option
+    /// @return value The intrinsic value (always >= 0) in SD59x18 format
+    function intrinsicValue(SD59x18 spot, SD59x18 strike, bool isCall) internal pure returns (SD59x18 value) {
+        if (isCall) {
+            value = callPayoff(spot, strike);
+        } else {
+            value = putPayoff(spot, strike);
+        }
+    }
+
+    /// @notice Computes the time value component of an option premium
+    /// @dev Time value = Premium - Intrinsic Value
+    /// @param premium The total option premium (SD59x18)
+    /// @param intrinsic The intrinsic value of the option (SD59x18)
+    /// @return value The time value component in SD59x18 format
+    function timeValue(SD59x18 premium, SD59x18 intrinsic) internal pure returns (SD59x18 value) {
+        // Time value cannot be negative for standard options
+        if (premium.gt(intrinsic)) {
+            value = premium.sub(intrinsic);
+        } else {
+            value = ZERO;
+        }
+    }
 }

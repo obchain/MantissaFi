@@ -194,4 +194,106 @@ contract OptionVault is ReentrancyGuard, Pausable, Ownable {
         if (block.timestamp >= expiry) return 0;
         return expiry - block.timestamp;
     }
+
+    // =========================================================================
+    // Series Management
+    // =========================================================================
+
+    /// @notice Create a new option series
+    /// @param config The option series configuration
+    /// @return seriesId The ID of the created series
+    function createSeries(OptionSeries calldata config) external whenNotPaused returns (uint256 seriesId) {
+        // Validate inputs
+        if (config.underlying == address(0)) revert OptionVault__ZeroAddress();
+        if (config.collateral == address(0)) revert OptionVault__ZeroAddress();
+        if (config.strike <= 0) revert OptionVault__InvalidStrike();
+        if (config.expiry <= block.timestamp) revert OptionVault__InvalidExpiry();
+        if (config.expiry < block.timestamp + MIN_TIME_TO_EXPIRY) revert OptionVault__ExpiryTooSoon();
+
+        // Create series
+        seriesId = nextSeriesId++;
+
+        series[seriesId] = SeriesData({
+            config: config,
+            state: SeriesState.ACTIVE,
+            totalMinted: 0,
+            totalExercised: 0,
+            collateralLocked: 0,
+            settlementPrice: 0,
+            createdAt: uint64(block.timestamp)
+        });
+
+        emit SeriesCreated(seriesId, config.underlying, config.strike, config.expiry, config.isCall);
+        emit SeriesActivated(seriesId);
+    }
+
+    // =========================================================================
+    // Minting
+    // =========================================================================
+
+    /// @notice Mint new options by providing collateral
+    /// @dev For calls: collateral = underlying. For puts: collateral = strike * amount in stablecoin
+    /// @param seriesId The series ID
+    /// @param amount The number of options to mint
+    /// @return premium The premium paid for the options (placeholder - returns 0)
+    function mint(uint256 seriesId, uint256 amount) external nonReentrant whenNotPaused returns (uint256 premium) {
+        if (amount == 0) revert OptionVault__InvalidAmount();
+
+        SeriesData storage s = series[seriesId];
+        if (s.config.underlying == address(0)) revert OptionVault__SeriesNotFound();
+        if (s.state != SeriesState.ACTIVE) revert OptionVault__InvalidState(s.state, SeriesState.ACTIVE);
+        if (block.timestamp >= s.config.expiry) revert OptionVault__AlreadyExpired();
+        if (s.config.expiry - block.timestamp < MIN_TIME_TO_EXPIRY) revert OptionVault__ExpiryTooSoon();
+
+        // Calculate collateral required (100% collateralization)
+        uint256 collateralRequired = _calculateCollateral(s.config, amount);
+
+        // Transfer collateral from minter
+        IERC20(s.config.collateral).safeTransferFrom(msg.sender, address(this), collateralRequired);
+
+        // Update state
+        s.totalMinted += amount;
+        s.collateralLocked += collateralRequired;
+
+        // Update positions
+        Position storage pos = positions[seriesId][msg.sender];
+        pos.shortAmount += amount;
+        pos.longAmount += amount; // Minter gets both long and short positions
+
+        // Premium calculation would go here (from BSMEngine)
+        // For now, premium is 0 - users pay only collateral
+        premium = 0;
+
+        emit OptionMinted(seriesId, msg.sender, amount, premium, collateralRequired);
+    }
+
+    /// @notice Calculate collateral required for minting
+    /// @dev 100% collateralization: calls require underlying, puts require strike value
+    /// @param config The option series config
+    /// @param amount Number of options
+    /// @return collateral Required collateral amount
+    function _calculateCollateral(OptionSeries memory config, uint256 amount) internal pure returns (uint256 collateral) {
+        if (config.isCall) {
+            // Call option: need 1 unit of underlying per option
+            // Assuming 18 decimals for underlying
+            collateral = amount;
+        } else {
+            // Put option: need strike price worth of collateral per option
+            // Convert strike (SD59x18) to uint256
+            // strike is in 18 decimals, amount is in token units
+            int256 strikeInt = config.strike;
+            require(strikeInt > 0, "Invalid strike");
+            collateral = (uint256(strikeInt) * amount) / 1e18;
+        }
+    }
+
+    /// @notice Calculate required collateral for a series
+    /// @param seriesId The series ID
+    /// @param amount The number of options
+    /// @return collateral The required collateral
+    function calculateCollateral(uint256 seriesId, uint256 amount) external view returns (uint256) {
+        SeriesData storage s = series[seriesId];
+        if (s.config.underlying == address(0)) revert OptionVault__SeriesNotFound();
+        return _calculateCollateral(s.config, amount);
+    }
 }

@@ -296,4 +296,183 @@ contract OptionVault is ReentrancyGuard, Pausable, Ownable {
         if (s.config.underlying == address(0)) revert OptionVault__SeriesNotFound();
         return _calculateCollateral(s.config, amount);
     }
+
+    // =========================================================================
+    // Exercise
+    // =========================================================================
+
+    /// @notice Exercise options at or after expiry (European style)
+    /// @param seriesId The series ID
+    /// @param amount The number of options to exercise
+    /// @return payout The payout received
+    function exercise(uint256 seriesId, uint256 amount) external nonReentrant whenNotPaused returns (uint256 payout) {
+        if (amount == 0) revert OptionVault__InvalidAmount();
+
+        SeriesData storage s = series[seriesId];
+        if (s.config.underlying == address(0)) revert OptionVault__SeriesNotFound();
+
+        // Check exercise window
+        if (!canExercise(seriesId)) {
+            if (block.timestamp < s.config.expiry) {
+                revert OptionVault__NotYetExpired();
+            } else {
+                revert OptionVault__ExercisePeriodEnded();
+            }
+        }
+
+        // Check position
+        Position storage pos = positions[seriesId][msg.sender];
+        if (pos.longAmount < amount) revert OptionVault__InsufficientPosition();
+
+        // Update state to EXPIRED if still ACTIVE
+        if (s.state == SeriesState.ACTIVE) {
+            s.state = SeriesState.EXPIRED;
+        }
+
+        // Calculate payout based on settlement price
+        // For now, use a mock settlement price (should come from oracle)
+        int256 spotPrice = s.settlementPrice;
+        if (spotPrice == 0) {
+            // Mock: use strike * 1.1 for calls ITM, strike * 0.9 for puts ITM
+            spotPrice = s.config.isCall
+                ? (s.config.strike * 110) / 100
+                : (s.config.strike * 90) / 100;
+            s.settlementPrice = spotPrice;
+        }
+
+        payout = _calculatePayout(s.config, spotPrice, amount);
+
+        // Update positions
+        pos.longAmount -= amount;
+        s.totalExercised += amount;
+
+        // Transfer payout
+        if (payout > 0) {
+            IERC20(s.config.collateral).safeTransfer(msg.sender, payout);
+            s.collateralLocked -= payout;
+        }
+
+        emit OptionExercised(seriesId, msg.sender, amount, payout);
+    }
+
+    /// @notice Calculate payout for exercising options
+    /// @param config The option series config
+    /// @param spotPrice The spot price at exercise (SD59x18)
+    /// @param amount Number of options
+    /// @return payout The payout amount
+    function _calculatePayout(
+        OptionSeries memory config,
+        int256 spotPrice,
+        uint256 amount
+    ) internal pure returns (uint256 payout) {
+        int256 strike = config.strike;
+
+        if (config.isCall) {
+            // Call payout: max(spot - strike, 0)
+            if (spotPrice > strike) {
+                int256 payoffPerOption = spotPrice - strike;
+                payout = (uint256(payoffPerOption) * amount) / 1e18;
+            }
+        } else {
+            // Put payout: max(strike - spot, 0)
+            if (strike > spotPrice) {
+                int256 payoffPerOption = strike - spotPrice;
+                payout = (uint256(payoffPerOption) * amount) / 1e18;
+            }
+        }
+    }
+
+    // =========================================================================
+    // Settlement
+    // =========================================================================
+
+    /// @notice Settle a series after expiry
+    /// @dev Marks series as settled, allowing remaining collateral claims
+    /// @param seriesId The series ID
+    function settle(uint256 seriesId) external nonReentrant whenNotPaused {
+        SeriesData storage s = series[seriesId];
+        if (s.config.underlying == address(0)) revert OptionVault__SeriesNotFound();
+
+        // Check state
+        if (s.state == SeriesState.SETTLED) return; // Already settled
+        if (s.state == SeriesState.CREATED) revert OptionVault__InvalidState(s.state, SeriesState.EXPIRED);
+
+        // Check timing
+        uint64 expiry = s.config.expiry;
+        if (block.timestamp < expiry + EXERCISE_GRACE_PERIOD) {
+            revert OptionVault__SettlementTooEarly();
+        }
+        if (block.timestamp > expiry + MAX_SETTLEMENT_DELAY) {
+            revert OptionVault__SettlementTooLate();
+        }
+
+        // Set settlement price if not already set
+        if (s.settlementPrice == 0) {
+            // Mock settlement price (should come from oracle)
+            s.settlementPrice = s.config.strike;
+        }
+
+        // Mark as settled
+        s.state = SeriesState.SETTLED;
+
+        emit SeriesSettled(seriesId, s.settlementPrice);
+    }
+
+    /// @notice Claim remaining collateral after settlement (for writers)
+    /// @param seriesId The series ID
+    /// @return payout The collateral returned
+    function claimCollateral(uint256 seriesId) external nonReentrant returns (uint256 payout) {
+        SeriesData storage s = series[seriesId];
+        if (s.config.underlying == address(0)) revert OptionVault__SeriesNotFound();
+        if (s.state != SeriesState.SETTLED) revert OptionVault__InvalidState(s.state, SeriesState.SETTLED);
+
+        Position storage pos = positions[seriesId][msg.sender];
+        if (pos.hasClaimed) revert OptionVault__AlreadyClaimed();
+        if (pos.shortAmount == 0) revert OptionVault__InsufficientPosition();
+
+        // Calculate remaining collateral for short position
+        // Short position collateral minus exercised payouts
+        uint256 collateralPerOption = _calculateCollateral(s.config, 1);
+        uint256 totalCollateral = collateralPerOption * pos.shortAmount;
+
+        // Calculate how much was paid out from this position's collateral
+        uint256 payoutFromPosition = 0;
+        if (s.totalExercised > 0 && s.totalMinted > 0) {
+            // Pro-rata share of total payouts
+            uint256 totalPayout = _calculatePayout(s.config, s.settlementPrice, s.totalExercised);
+            payoutFromPosition = (totalPayout * pos.shortAmount) / s.totalMinted;
+        }
+
+        payout = totalCollateral > payoutFromPosition ? totalCollateral - payoutFromPosition : 0;
+
+        pos.hasClaimed = true;
+
+        if (payout > 0) {
+            IERC20(s.config.collateral).safeTransfer(msg.sender, payout);
+            s.collateralLocked -= payout;
+        }
+
+        emit PayoutClaimed(seriesId, msg.sender, payout);
+    }
+
+    // =========================================================================
+    // Admin Functions
+    // =========================================================================
+
+    /// @notice Pause the contract
+    function pause() external onlyOwner {
+        _pause();
+    }
+
+    /// @notice Unpause the contract
+    function unpause() external onlyOwner {
+        _unpause();
+    }
+
+    /// @notice Emergency withdraw stuck tokens (admin only)
+    /// @param token The token to withdraw
+    /// @param amount The amount to withdraw
+    function emergencyWithdraw(address token, uint256 amount) external onlyOwner {
+        IERC20(token).safeTransfer(msg.sender, amount);
+    }
 }

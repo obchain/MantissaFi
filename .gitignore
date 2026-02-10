@@ -38,3 +38,4 @@ certora_*
 # Analysis
 analysis/slither/
 analysis/mythril/
+.anthropic_key

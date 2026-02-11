@@ -159,18 +159,24 @@ contract IntegrationtestTest is Test {
 
     /// @notice Creates a standard call option series for testing
     function _createCallSeries(uint64 expiry) internal pure returns (OptionSeries memory) {
-        return
-            OptionSeries({
-                underlying: WETH, collateral: USDC, expiry: expiry, strikePrice: STRIKE_PRICE, isCall: true
-            });
+        return OptionSeries({
+            underlying: WETH,
+            collateral: USDC,
+            expiry: expiry,
+            strikePrice: STRIKE_PRICE,
+            isCall: true
+        });
     }
 
     /// @notice Creates a standard put option series for testing
     function _createPutSeries(uint64 expiry) internal pure returns (OptionSeries memory) {
-        return
-            OptionSeries({
-                underlying: WETH, collateral: USDC, expiry: expiry, strikePrice: STRIKE_PRICE, isCall: false
-            });
+        return OptionSeries({
+            underlying: WETH,
+            collateral: USDC,
+            expiry: expiry,
+            strikePrice: STRIKE_PRICE,
+            isCall: false
+        });
     }
 
     /// @notice Creates standard BSM inputs for testing
@@ -967,7 +973,11 @@ contract IntegrationtestTest is Test {
         uint64 shortExpiry = uint64(block.timestamp + 1800); // Only 30 minutes
 
         OptionSeries memory series = OptionSeries({
-            underlying: WETH, collateral: USDC, expiry: shortExpiry, strikePrice: STRIKE_PRICE, isCall: true
+            underlying: WETH,
+            collateral: USDC,
+            expiry: shortExpiry,
+            strikePrice: STRIKE_PRICE,
+            isCall: true
         });
 
         vm.expectRevert(abi.encodeWithSelector(InvalidExpiry.selector, shortExpiry));

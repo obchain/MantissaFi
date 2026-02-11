@@ -3,9 +3,8 @@ pragma solidity ^0.8.24;
 
 import "forge-std/Test.sol";
 import { SD59x18, sd, ZERO } from "@prb/math/SD59x18.sol";
-import {
-    BacktestLSIVSagainsthistoricalDeribitIVdata as Backtest
-} from "../../src/libraries/BacktestLSIVSagainsthistoricalDeribitIVdata.sol";
+import { BacktestLSIVSagainsthistoricalDeribitIVdata as Backtest } from
+    "../../src/libraries/BacktestLSIVSagainsthistoricalDeribitIVdata.sol";
 
 /// @title BacktestLSIVSagainsthistoricalDeribitIVdataFuzzTest
 /// @notice Fuzz tests for property-based invariant testing of the LSIVS backtesting library
@@ -373,11 +372,17 @@ contract BacktestLSIVSagainsthistoricalDeribitIVdataFuzzTest is Test {
         uint256 skew2Raw = bound(skew2Seed, skew1Raw, 5e17);
 
         Backtest.CalibrationParams memory params1 = Backtest.CalibrationParams({
-            skewCoefficient: sd(int256(skew1Raw)), gamma: sd(1e17), atmAdjustment: ZERO, termStructureCoeff: ZERO
+            skewCoefficient: sd(int256(skew1Raw)),
+            gamma: sd(1e17),
+            atmAdjustment: ZERO,
+            termStructureCoeff: ZERO
         });
 
         Backtest.CalibrationParams memory params2 = Backtest.CalibrationParams({
-            skewCoefficient: sd(int256(skew2Raw)), gamma: sd(1e17), atmAdjustment: ZERO, termStructureCoeff: ZERO
+            skewCoefficient: sd(int256(skew2Raw)),
+            gamma: sd(1e17),
+            atmAdjustment: ZERO,
+            termStructureCoeff: ZERO
         });
 
         SD59x18 iv1 = Backtest.computeLSIVS(sd(int256(spot)), sd(int256(strike)), sd(time), sd(vol), ZERO, params1);

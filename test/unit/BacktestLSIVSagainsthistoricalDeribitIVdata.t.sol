@@ -3,9 +3,8 @@ pragma solidity ^0.8.24;
 
 import "forge-std/Test.sol";
 import { SD59x18, sd, ZERO } from "@prb/math/SD59x18.sol";
-import {
-    BacktestLSIVSagainsthistoricalDeribitIVdata as Backtest
-} from "../../src/libraries/BacktestLSIVSagainsthistoricalDeribitIVdata.sol";
+import { BacktestLSIVSagainsthistoricalDeribitIVdata as Backtest } from
+    "../../src/libraries/BacktestLSIVSagainsthistoricalDeribitIVdata.sol";
 
 /// @notice Wrapper contract to enable revert testing for library internal functions
 contract BacktestWrapper {
@@ -368,7 +367,7 @@ contract BacktestLSIVSagainsthistoricalDeribitIVdataTest is Test {
             realizedVol: sd(8e17),
             utilization: sd(1e17),
             deribitIV: sd(82e16) // Deribit shows 82%
-        });
+         });
 
         Backtest.CalibrationParams memory params = Backtest.defaultCalibrationParams();
 
@@ -436,7 +435,10 @@ contract BacktestLSIVSagainsthistoricalDeribitIVdataTest is Test {
 
     function test_validateCalibrationParams_Valid() public pure {
         Backtest.CalibrationParams memory params = Backtest.CalibrationParams({
-            skewCoefficient: sd(3e17), gamma: sd(15e16), atmAdjustment: sd(1e16), termStructureCoeff: sd(5e16)
+            skewCoefficient: sd(3e17),
+            gamma: sd(15e16),
+            atmAdjustment: sd(1e16),
+            termStructureCoeff: sd(5e16)
         });
 
         bool valid = Backtest.validateCalibrationParams(params);
@@ -446,7 +448,10 @@ contract BacktestLSIVSagainsthistoricalDeribitIVdataTest is Test {
 
     function test_validateCalibrationParams_InvalidSkew() public pure {
         Backtest.CalibrationParams memory params = Backtest.CalibrationParams({
-            skewCoefficient: sd(2e18), gamma: sd(1e17), atmAdjustment: ZERO, termStructureCoeff: ZERO
+            skewCoefficient: sd(2e18),
+            gamma: sd(1e17),
+            atmAdjustment: ZERO,
+            termStructureCoeff: ZERO
         });
 
         bool valid = Backtest.validateCalibrationParams(params);
@@ -456,7 +461,10 @@ contract BacktestLSIVSagainsthistoricalDeribitIVdataTest is Test {
 
     function test_validateCalibrationParams_NegativeGamma() public pure {
         Backtest.CalibrationParams memory params = Backtest.CalibrationParams({
-            skewCoefficient: sd(25e16), gamma: sd(-1e17), atmAdjustment: ZERO, termStructureCoeff: ZERO
+            skewCoefficient: sd(25e16),
+            gamma: sd(-1e17),
+            atmAdjustment: ZERO,
+            termStructureCoeff: ZERO
         });
 
         bool valid = Backtest.validateCalibrationParams(params);

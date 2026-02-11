@@ -101,11 +101,7 @@ contract CertoraspecHarness {
         Certoraspec.assertPutMonotonicInVol(p, epsilon);
     }
 
-    function verifyAllInvariants(PricingParams memory p, SD59x18 epsilon)
-        external
-        pure
-        returns (bool, bool, bool)
-    {
+    function verifyAllInvariants(PricingParams memory p, SD59x18 epsilon) external pure returns (bool, bool, bool) {
         return Certoraspec.verifyAllInvariants(p, epsilon);
     }
 
@@ -113,11 +109,7 @@ contract CertoraspecHarness {
         Certoraspec.assertAllInvariants(p, epsilon);
     }
 
-    function verifyPutCallParity(PricingParams memory p, SD59x18 tolerance)
-        external
-        pure
-        returns (bool, SD59x18)
-    {
+    function verifyPutCallParity(PricingParams memory p, SD59x18 tolerance) external pure returns (bool, SD59x18) {
         return Certoraspec.verifyPutCallParity(p, tolerance);
     }
 
@@ -240,8 +232,13 @@ contract CertoraspecTest is Test {
     }
 
     function test_validateParams_AcceptsZeroRate() public pure {
-        PricingParams memory p =
-            PricingParams({ spot: sd(ETH_SPOT), strike: sd(ETH_STRIKE_ATM), volatility: sd(VOL_50), riskFreeRate: ZERO, timeToExpiry: sd(TIME_1Y) });
+        PricingParams memory p = PricingParams({
+            spot: sd(ETH_SPOT),
+            strike: sd(ETH_STRIKE_ATM),
+            volatility: sd(VOL_50),
+            riskFreeRate: ZERO,
+            timeToExpiry: sd(TIME_1Y)
+        });
         Certoraspec.validateParams(p);
     }
 

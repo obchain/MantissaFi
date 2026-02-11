@@ -80,10 +80,7 @@ contract VolatilitySurfaceTest is Test {
     /// @notice Test basic IV calculation at ATM with no utilization
     function test_getImpliedVolatility_ATM_ZeroUtilization() public pure {
         VolatilitySurface.IVParams memory params = VolatilitySurface.IVParams({
-            spot: sd(ETH_PRICE),
-            strike: sd(ATM_STRIKE),
-            realizedVol: sd(REALIZED_VOL_30),
-            timeToExpiry: sd(ONE_YEAR)
+            spot: sd(ETH_PRICE), strike: sd(ATM_STRIKE), realizedVol: sd(REALIZED_VOL_30), timeToExpiry: sd(ONE_YEAR)
         });
 
         VolatilitySurface.PoolState memory poolState =
@@ -101,10 +98,7 @@ contract VolatilitySurfaceTest is Test {
     /// @notice Test IV increases for OTM calls due to skew
     function test_getImpliedVolatility_OTMCall_SkewIncreasesIV() public pure {
         VolatilitySurface.IVParams memory paramsATM = VolatilitySurface.IVParams({
-            spot: sd(ETH_PRICE),
-            strike: sd(ATM_STRIKE),
-            realizedVol: sd(REALIZED_VOL_30),
-            timeToExpiry: sd(ONE_YEAR)
+            spot: sd(ETH_PRICE), strike: sd(ATM_STRIKE), realizedVol: sd(REALIZED_VOL_30), timeToExpiry: sd(ONE_YEAR)
         });
 
         VolatilitySurface.IVParams memory paramsOTM = VolatilitySurface.IVParams({
@@ -129,10 +123,7 @@ contract VolatilitySurfaceTest is Test {
     /// @notice Test IV increases for OTM puts due to skew (smile symmetry)
     function test_getImpliedVolatility_OTMPut_SkewIncreasesIV() public pure {
         VolatilitySurface.IVParams memory paramsATM = VolatilitySurface.IVParams({
-            spot: sd(ETH_PRICE),
-            strike: sd(ATM_STRIKE),
-            realizedVol: sd(REALIZED_VOL_30),
-            timeToExpiry: sd(ONE_YEAR)
+            spot: sd(ETH_PRICE), strike: sd(ATM_STRIKE), realizedVol: sd(REALIZED_VOL_30), timeToExpiry: sd(ONE_YEAR)
         });
 
         VolatilitySurface.IVParams memory paramsOTM = VolatilitySurface.IVParams({
@@ -157,21 +148,18 @@ contract VolatilitySurfaceTest is Test {
     /// @notice Test IV increases with utilization
     function test_getImpliedVolatility_UtilizationIncreasesIV() public pure {
         VolatilitySurface.IVParams memory params = VolatilitySurface.IVParams({
-            spot: sd(ETH_PRICE),
-            strike: sd(ATM_STRIKE),
-            realizedVol: sd(REALIZED_VOL_30),
-            timeToExpiry: sd(ONE_YEAR)
+            spot: sd(ETH_PRICE), strike: sd(ATM_STRIKE), realizedVol: sd(REALIZED_VOL_30), timeToExpiry: sd(ONE_YEAR)
         });
 
         VolatilitySurface.PoolState memory lowUtil = VolatilitySurface.PoolState({
             totalAssets: 1_000_000e6,
             lockedCollateral: 100_000e6 // 10%
-         });
+        });
 
         VolatilitySurface.PoolState memory highUtil = VolatilitySurface.PoolState({
             totalAssets: 1_000_000e6,
             lockedCollateral: 500_000e6 // 50%
-         });
+        });
 
         VolatilitySurface.SurfaceConfig memory config = VolatilitySurface.getDefaultConfig();
 
@@ -216,7 +204,7 @@ contract VolatilitySurfaceTest is Test {
         VolatilitySurface.PoolState memory poolState = VolatilitySurface.PoolState({
             totalAssets: 1_000_000e6,
             lockedCollateral: 800_000e6 // 80% utilization
-         });
+        });
 
         VolatilitySurface.SurfaceConfig memory config = VolatilitySurface.getDefaultConfig();
 
@@ -732,7 +720,7 @@ contract VolatilitySurfaceTest is Test {
         VolatilitySurface.PoolState memory highUtil = VolatilitySurface.PoolState({
             totalAssets: 1_000_000e6,
             lockedCollateral: 700_000e6 // 70% utilization
-         });
+        });
 
         VolatilitySurface.SurfaceConfig memory config = VolatilitySurface.getDefaultConfig();
 

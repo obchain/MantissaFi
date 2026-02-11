@@ -49,10 +49,7 @@ contract VolatilitySurfaceFuzzTest is Test {
         lockedCollateral = bound(lockedCollateral, 0, totalAssets * 98 / 100); // Max 98%
 
         VolatilitySurface.IVParams memory params = VolatilitySurface.IVParams({
-            spot: sd(spotRaw),
-            strike: sd(strikeRaw),
-            realizedVol: sd(realizedVolRaw),
-            timeToExpiry: sd(ONE)
+            spot: sd(spotRaw), strike: sd(strikeRaw), realizedVol: sd(realizedVolRaw), timeToExpiry: sd(ONE)
         });
 
         VolatilitySurface.PoolState memory poolState =
@@ -207,10 +204,7 @@ contract VolatilitySurfaceFuzzTest is Test {
     // ═══════════════════════════════════════════════════════════════════════════════════════════════════════════════
 
     /// @notice Utilization is always between 0 and 1
-    function testFuzz_calculateUtilization_BoundedZeroToOne(uint256 totalAssets, uint256 lockedCollateral)
-        public
-        pure
-    {
+    function testFuzz_calculateUtilization_BoundedZeroToOne(uint256 totalAssets, uint256 lockedCollateral) public pure {
         totalAssets = bound(totalAssets, 1, type(uint128).max);
         lockedCollateral = bound(lockedCollateral, 0, totalAssets);
 
@@ -311,10 +305,7 @@ contract VolatilitySurfaceFuzzTest is Test {
         util2 = bound(util2, util1 + 1, 98);
 
         VolatilitySurface.IVParams memory params = VolatilitySurface.IVParams({
-            spot: sd(spotRaw),
-            strike: sd(strikeRaw),
-            realizedVol: sd(volRaw),
-            timeToExpiry: sd(ONE)
+            spot: sd(spotRaw), strike: sd(strikeRaw), realizedVol: sd(volRaw), timeToExpiry: sd(ONE)
         });
 
         VolatilitySurface.PoolState memory lowUtil =
@@ -392,10 +383,7 @@ contract VolatilitySurfaceFuzzTest is Test {
         skewRaw = bound(skewRaw, 0, ONE);
 
         VolatilitySurface.SurfaceConfig memory config = VolatilitySurface.SurfaceConfig({
-            ivFloor: sd(floorRaw),
-            ivCeiling: sd(ceilingRaw),
-            gamma: sd(gammaRaw),
-            skewCoefficient: sd(skewRaw)
+            ivFloor: sd(floorRaw), ivCeiling: sd(ceilingRaw), gamma: sd(gammaRaw), skewCoefficient: sd(skewRaw)
         });
 
         // INVARIANT: Config with floor >= ceiling is invalid

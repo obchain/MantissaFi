@@ -1,0 +1,48 @@
+name: Certora Verification
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'src/**'
+      - 'certora/**'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'src/**'
+      - 'certora/**'
+  workflow_dispatch:
+
+jobs:
+  verify:
+    name: Formal Verification
+    runs-on: ubuntu-latest
+    if: ${{ secrets.CERTORAKEY != '' }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Certora CLI
+        run: pip install certora-cli
+
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+
+      - name: Install solc
+        run: |
+          pip install solc-select
+          solc-select install 0.8.24
+          solc-select use 0.8.24
+
+      - name: Run Solvency Verification
+        env:
+          CERTORAKEY: ${{ secrets.CERTORAKEY }}
+        run: |
+          certoraRun certora/conf/Solvency.conf \
+            --msg "CI: Solvency Invariant - ${{ github.sha }}"

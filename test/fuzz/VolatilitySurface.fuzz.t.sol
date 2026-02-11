@@ -55,10 +55,8 @@ contract VolatilitySurfaceFuzzTest is Test {
             timeToExpiry: sd(ONE)
         });
 
-        VolatilitySurface.PoolState memory poolState = VolatilitySurface.PoolState({
-            totalAssets: totalAssets,
-            lockedCollateral: lockedCollateral
-        });
+        VolatilitySurface.PoolState memory poolState =
+            VolatilitySurface.PoolState({ totalAssets: totalAssets, lockedCollateral: lockedCollateral });
 
         VolatilitySurface.SurfaceConfig memory config = VolatilitySurface.getDefaultConfig();
 
@@ -89,11 +87,7 @@ contract VolatilitySurfaceFuzzTest is Test {
     // ═══════════════════════════════════════════════════════════════════════════════════════════════════════════════
 
     /// @notice Skew is always non-negative for any strike
-    function testFuzz_calculateSkew_AlwaysNonNegative(
-        int256 spotRaw,
-        int256 strikeRaw,
-        int256 coeffRaw
-    ) public pure {
+    function testFuzz_calculateSkew_AlwaysNonNegative(int256 spotRaw, int256 strikeRaw, int256 coeffRaw) public pure {
         spotRaw = bound(spotRaw, MIN_PRICE, MAX_PRICE);
         strikeRaw = bound(strikeRaw, MIN_PRICE, MAX_PRICE);
         coeffRaw = bound(coeffRaw, 0, ONE);
@@ -109,10 +103,7 @@ contract VolatilitySurfaceFuzzTest is Test {
     // ═══════════════════════════════════════════════════════════════════════════════════════════════════════════════
 
     /// @notice Utilization premium is always non-negative
-    function testFuzz_calculateUtilizationPremium_AlwaysNonNegative(
-        int256 utilRaw,
-        int256 gammaRaw
-    ) public pure {
+    function testFuzz_calculateUtilizationPremium_AlwaysNonNegative(int256 utilRaw, int256 gammaRaw) public pure {
         utilRaw = bound(utilRaw, 0, MAX_UTIL);
         gammaRaw = bound(gammaRaw, 0, 2e18); // Gamma between 0 and 2
 
@@ -127,11 +118,10 @@ contract VolatilitySurfaceFuzzTest is Test {
     // ═══════════════════════════════════════════════════════════════════════════════════════════════════════════════
 
     /// @notice Higher utilization always means higher premium (monotonic)
-    function testFuzz_calculateUtilizationPremium_Monotonic(
-        int256 util1Raw,
-        int256 util2Raw,
-        int256 gammaRaw
-    ) public pure {
+    function testFuzz_calculateUtilizationPremium_Monotonic(int256 util1Raw, int256 util2Raw, int256 gammaRaw)
+        public
+        pure
+    {
         util1Raw = bound(util1Raw, 0, MAX_UTIL - 1e16);
         util2Raw = bound(util2Raw, util1Raw + 1e16, MAX_UTIL);
         gammaRaw = bound(gammaRaw, 1e16, 2e18); // Positive gamma
@@ -168,21 +158,11 @@ contract VolatilitySurfaceFuzzTest is Test {
         strikeARaw = bound(strikeARaw, strike1Raw, strike2Raw);
         strikeBRaw = bound(strikeBRaw, strikeARaw, strike2Raw);
 
-        SD59x18 ivA = VolatilitySurface.interpolateLinear(
-            sd(strikeARaw),
-            sd(strike1Raw),
-            sd(strike2Raw),
-            sd(iv1Raw),
-            sd(iv2Raw)
-        );
+        SD59x18 ivA =
+            VolatilitySurface.interpolateLinear(sd(strikeARaw), sd(strike1Raw), sd(strike2Raw), sd(iv1Raw), sd(iv2Raw));
 
-        SD59x18 ivB = VolatilitySurface.interpolateLinear(
-            sd(strikeBRaw),
-            sd(strike1Raw),
-            sd(strike2Raw),
-            sd(iv1Raw),
-            sd(iv2Raw)
-        );
+        SD59x18 ivB =
+            VolatilitySurface.interpolateLinear(sd(strikeBRaw), sd(strike1Raw), sd(strike2Raw), sd(iv1Raw), sd(iv2Raw));
 
         // INVARIANT: If iv1 <= iv2 and strikeA <= strikeB, then ivA <= ivB
         if (iv1Raw <= iv2Raw) {
@@ -211,13 +191,8 @@ contract VolatilitySurfaceFuzzTest is Test {
         iv1Raw = bound(iv1Raw, MIN_VOL, MAX_VOL);
         iv2Raw = bound(iv2Raw, MIN_VOL, MAX_VOL);
 
-        SD59x18 iv = VolatilitySurface.interpolateLinear(
-            sd(strikeRaw),
-            sd(strike1Raw),
-            sd(strike2Raw),
-            sd(iv1Raw),
-            sd(iv2Raw)
-        );
+        SD59x18 iv =
+            VolatilitySurface.interpolateLinear(sd(strikeRaw), sd(strike1Raw), sd(strike2Raw), sd(iv1Raw), sd(iv2Raw));
 
         int256 minIV = iv1Raw < iv2Raw ? iv1Raw : iv2Raw;
         int256 maxIV = iv1Raw > iv2Raw ? iv1Raw : iv2Raw;
@@ -232,17 +207,15 @@ contract VolatilitySurfaceFuzzTest is Test {
     // ═══════════════════════════════════════════════════════════════════════════════════════════════════════════════
 
     /// @notice Utilization is always between 0 and 1
-    function testFuzz_calculateUtilization_BoundedZeroToOne(
-        uint256 totalAssets,
-        uint256 lockedCollateral
-    ) public pure {
+    function testFuzz_calculateUtilization_BoundedZeroToOne(uint256 totalAssets, uint256 lockedCollateral)
+        public
+        pure
+    {
         totalAssets = bound(totalAssets, 1, type(uint128).max);
         lockedCollateral = bound(lockedCollateral, 0, totalAssets);
 
-        VolatilitySurface.PoolState memory poolState = VolatilitySurface.PoolState({
-            totalAssets: totalAssets,
-            lockedCollateral: lockedCollateral
-        });
+        VolatilitySurface.PoolState memory poolState =
+            VolatilitySurface.PoolState({ totalAssets: totalAssets, lockedCollateral: lockedCollateral });
 
         SD59x18 utilization = VolatilitySurface.calculateUtilization(poolState);
 
@@ -271,11 +244,7 @@ contract VolatilitySurfaceFuzzTest is Test {
     // ═══════════════════════════════════════════════════════════════════════════════════════════════════════════════
 
     /// @notice clampIV always produces IV within bounds
-    function testFuzz_clampIV_AlwaysWithinBounds(
-        int256 ivRaw,
-        int256 floorRaw,
-        int256 ceilingRaw
-    ) public pure {
+    function testFuzz_clampIV_AlwaysWithinBounds(int256 ivRaw, int256 floorRaw, int256 ceilingRaw) public pure {
         // Ensure floor < ceiling
         floorRaw = bound(floorRaw, 1e16, ONE);
         ceilingRaw = bound(ceilingRaw, floorRaw + 1e16, 10e18);
@@ -293,11 +262,10 @@ contract VolatilitySurfaceFuzzTest is Test {
     // ═══════════════════════════════════════════════════════════════════════════════════════════════════════════════
 
     /// @notice Symmetric strikes (K1 = S/x and K2 = S*x) have similar skew values
-    function testFuzz_calculateSkew_ApproximateSymmetry(
-        int256 spotRaw,
-        int256 multiplierRaw,
-        int256 coeffRaw
-    ) public pure {
+    function testFuzz_calculateSkew_ApproximateSymmetry(int256 spotRaw, int256 multiplierRaw, int256 coeffRaw)
+        public
+        pure
+    {
         spotRaw = bound(spotRaw, 100e18, 10_000e18);
         // Multiplier between 1.01 and 2.0
         multiplierRaw = bound(multiplierRaw, 101e16, 2e18);
@@ -349,15 +317,11 @@ contract VolatilitySurfaceFuzzTest is Test {
             timeToExpiry: sd(ONE)
         });
 
-        VolatilitySurface.PoolState memory lowUtil = VolatilitySurface.PoolState({
-            totalAssets: totalAssets,
-            lockedCollateral: totalAssets * util1 / 100
-        });
+        VolatilitySurface.PoolState memory lowUtil =
+            VolatilitySurface.PoolState({ totalAssets: totalAssets, lockedCollateral: totalAssets * util1 / 100 });
 
-        VolatilitySurface.PoolState memory highUtil = VolatilitySurface.PoolState({
-            totalAssets: totalAssets,
-            lockedCollateral: totalAssets * util2 / 100
-        });
+        VolatilitySurface.PoolState memory highUtil =
+            VolatilitySurface.PoolState({ totalAssets: totalAssets, lockedCollateral: totalAssets * util2 / 100 });
 
         VolatilitySurface.SurfaceConfig memory config = VolatilitySurface.getDefaultConfig();
 
@@ -389,23 +353,11 @@ contract VolatilitySurfaceFuzzTest is Test {
         slope2Raw = bound(slope2Raw, -ONE, ONE);
 
         SD59x18 ivAtLower = VolatilitySurface.interpolateCubic(
-            sd(strike1Raw),
-            sd(strike1Raw),
-            sd(strike2Raw),
-            sd(iv1Raw),
-            sd(iv2Raw),
-            sd(slope1Raw),
-            sd(slope2Raw)
+            sd(strike1Raw), sd(strike1Raw), sd(strike2Raw), sd(iv1Raw), sd(iv2Raw), sd(slope1Raw), sd(slope2Raw)
         );
 
         SD59x18 ivAtUpper = VolatilitySurface.interpolateCubic(
-            sd(strike2Raw),
-            sd(strike1Raw),
-            sd(strike2Raw),
-            sd(iv1Raw),
-            sd(iv2Raw),
-            sd(slope1Raw),
-            sd(slope2Raw)
+            sd(strike2Raw), sd(strike1Raw), sd(strike2Raw), sd(iv1Raw), sd(iv2Raw), sd(slope1Raw), sd(slope2Raw)
         );
 
         // INVARIANT: Cubic interpolation matches endpoints exactly

@@ -116,11 +116,11 @@ library VolatilitySurface {
     /// @param poolState Pool liquidity state for utilization
     /// @param config Surface configuration parameters
     /// @return iv The calculated implied volatility in SD59x18 format
-    function getImpliedVolatility(
-        IVParams memory params,
-        PoolState memory poolState,
-        SurfaceConfig memory config
-    ) internal pure returns (SD59x18 iv) {
+    function getImpliedVolatility(IVParams memory params, PoolState memory poolState, SurfaceConfig memory config)
+        internal
+        pure
+        returns (SD59x18 iv)
+    {
         // Validate inputs
         _validateIVParams(params);
         _validateConfig(config);
@@ -148,12 +148,11 @@ library VolatilitySurface {
     /// @param realizedVol Realized volatility (SD59x18)
     /// @param utilization Pool utilization ratio (SD59x18)
     /// @return iv The calculated implied volatility in SD59x18 format
-    function getImpliedVolatilitySimple(
-        SD59x18 spot,
-        SD59x18 strike,
-        SD59x18 realizedVol,
-        SD59x18 utilization
-    ) internal pure returns (SD59x18 iv) {
+    function getImpliedVolatilitySimple(SD59x18 spot, SD59x18 strike, SD59x18 realizedVol, SD59x18 utilization)
+        internal
+        pure
+        returns (SD59x18 iv)
+    {
         // Validate basic inputs
         if (spot.lte(ZERO)) revert VolatilitySurface__InvalidSpotPrice();
         if (strike.lte(ZERO)) revert VolatilitySurface__InvalidStrikePrice();
@@ -228,11 +227,11 @@ library VolatilitySurface {
     /// @param strike Option strike price (SD59x18)
     /// @param skewCoefficient Skew sensitivity (SD59x18)
     /// @return skew The skew adjustment in SD59x18 format
-    function calculateSkew(
-        SD59x18 spot,
-        SD59x18 strike,
-        SD59x18 skewCoefficient
-    ) internal pure returns (SD59x18 skew) {
+    function calculateSkew(SD59x18 spot, SD59x18 strike, SD59x18 skewCoefficient)
+        internal
+        pure
+        returns (SD59x18 skew)
+    {
         if (spot.lte(ZERO)) revert VolatilitySurface__InvalidSpotPrice();
         if (strike.lte(ZERO)) revert VolatilitySurface__InvalidStrikePrice();
         if (skewCoefficient.lt(ZERO)) revert VolatilitySurface__InvalidSkewCoefficient();
@@ -255,11 +254,11 @@ library VolatilitySurface {
     /// @param strike Option strike price (SD59x18)
     /// @param skewCoefficient Skew sensitivity (SD59x18)
     /// @return skew The linear skew adjustment in SD59x18 format
-    function calculateLinearSkew(
-        SD59x18 spot,
-        SD59x18 strike,
-        SD59x18 skewCoefficient
-    ) internal pure returns (SD59x18 skew) {
+    function calculateLinearSkew(SD59x18 spot, SD59x18 strike, SD59x18 skewCoefficient)
+        internal
+        pure
+        returns (SD59x18 skew)
+    {
         if (spot.lte(ZERO)) revert VolatilitySurface__InvalidSpotPrice();
         if (strike.lte(ZERO)) revert VolatilitySurface__InvalidStrikePrice();
         if (skewCoefficient.lt(ZERO)) revert VolatilitySurface__InvalidSkewCoefficient();
@@ -288,13 +287,11 @@ library VolatilitySurface {
     /// @param iv1 IV at lower strike (SD59x18)
     /// @param iv2 IV at upper strike (SD59x18)
     /// @return iv Interpolated IV at target strike (SD59x18)
-    function interpolateLinear(
-        SD59x18 strike,
-        SD59x18 strike1,
-        SD59x18 strike2,
-        SD59x18 iv1,
-        SD59x18 iv2
-    ) internal pure returns (SD59x18 iv) {
+    function interpolateLinear(SD59x18 strike, SD59x18 strike1, SD59x18 strike2, SD59x18 iv1, SD59x18 iv2)
+        internal
+        pure
+        returns (SD59x18 iv)
+    {
         if (strike1.gte(strike2)) revert VolatilitySurface__InvalidStrikePrice();
         if (strike.lt(strike1) || strike.gt(strike2)) revert VolatilitySurface__InvalidStrikePrice();
 
@@ -362,7 +359,9 @@ library VolatilitySurface {
     /// @param ceiling Maximum allowed IV (SD59x18)
     /// @return clamped The clamped IV (SD59x18)
     function clampIV(SD59x18 iv, SD59x18 floor, SD59x18 ceiling) internal pure returns (SD59x18 clamped) {
-        if (floor.gte(ceiling)) revert VolatilitySurface__InvalidIVBounds(SD59x18.unwrap(floor), SD59x18.unwrap(ceiling));
+        if (floor.gte(ceiling)) {
+            revert VolatilitySurface__InvalidIVBounds(SD59x18.unwrap(floor), SD59x18.unwrap(ceiling));
+        }
 
         if (iv.lt(floor)) {
             return floor;

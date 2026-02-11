@@ -20,13 +20,11 @@ contract VolatilitySurfaceHarness {
         return VolatilitySurface.calculateSkew(spot, strike, skewCoefficient);
     }
 
-    function interpolateLinear(
-        SD59x18 strike,
-        SD59x18 strike1,
-        SD59x18 strike2,
-        SD59x18 iv1,
-        SD59x18 iv2
-    ) external pure returns (SD59x18) {
+    function interpolateLinear(SD59x18 strike, SD59x18 strike1, SD59x18 strike2, SD59x18 iv1, SD59x18 iv2)
+        external
+        pure
+        returns (SD59x18)
+    {
         return VolatilitySurface.interpolateLinear(strike, strike1, strike2, iv1, iv2);
     }
 
@@ -34,12 +32,11 @@ contract VolatilitySurfaceHarness {
         return VolatilitySurface.clampIV(iv, floor, ceiling);
     }
 
-    function getImpliedVolatilitySimple(
-        SD59x18 spot,
-        SD59x18 strike,
-        SD59x18 realizedVol,
-        SD59x18 utilization
-    ) external pure returns (SD59x18) {
+    function getImpliedVolatilitySimple(SD59x18 spot, SD59x18 strike, SD59x18 realizedVol, SD59x18 utilization)
+        external
+        pure
+        returns (SD59x18)
+    {
         return VolatilitySurface.getImpliedVolatilitySimple(spot, strike, realizedVol, utilization);
     }
 }
@@ -89,10 +86,8 @@ contract VolatilitySurfaceTest is Test {
             timeToExpiry: sd(ONE_YEAR)
         });
 
-        VolatilitySurface.PoolState memory poolState = VolatilitySurface.PoolState({
-            totalAssets: 1_000_000e6,
-            lockedCollateral: 0
-        });
+        VolatilitySurface.PoolState memory poolState =
+            VolatilitySurface.PoolState({ totalAssets: 1_000_000e6, lockedCollateral: 0 });
 
         VolatilitySurface.SurfaceConfig memory config = VolatilitySurface.getDefaultConfig();
 
@@ -119,10 +114,8 @@ contract VolatilitySurfaceTest is Test {
             timeToExpiry: sd(ONE_YEAR)
         });
 
-        VolatilitySurface.PoolState memory poolState = VolatilitySurface.PoolState({
-            totalAssets: 1_000_000e6,
-            lockedCollateral: 0
-        });
+        VolatilitySurface.PoolState memory poolState =
+            VolatilitySurface.PoolState({ totalAssets: 1_000_000e6, lockedCollateral: 0 });
 
         VolatilitySurface.SurfaceConfig memory config = VolatilitySurface.getDefaultConfig();
 
@@ -149,10 +142,8 @@ contract VolatilitySurfaceTest is Test {
             timeToExpiry: sd(ONE_YEAR)
         });
 
-        VolatilitySurface.PoolState memory poolState = VolatilitySurface.PoolState({
-            totalAssets: 1_000_000e6,
-            lockedCollateral: 0
-        });
+        VolatilitySurface.PoolState memory poolState =
+            VolatilitySurface.PoolState({ totalAssets: 1_000_000e6, lockedCollateral: 0 });
 
         VolatilitySurface.SurfaceConfig memory config = VolatilitySurface.getDefaultConfig();
 
@@ -175,12 +166,12 @@ contract VolatilitySurfaceTest is Test {
         VolatilitySurface.PoolState memory lowUtil = VolatilitySurface.PoolState({
             totalAssets: 1_000_000e6,
             lockedCollateral: 100_000e6 // 10%
-        });
+         });
 
         VolatilitySurface.PoolState memory highUtil = VolatilitySurface.PoolState({
             totalAssets: 1_000_000e6,
             lockedCollateral: 500_000e6 // 50%
-        });
+         });
 
         VolatilitySurface.SurfaceConfig memory config = VolatilitySurface.getDefaultConfig();
 
@@ -201,10 +192,8 @@ contract VolatilitySurfaceTest is Test {
             timeToExpiry: sd(ONE_YEAR)
         });
 
-        VolatilitySurface.PoolState memory poolState = VolatilitySurface.PoolState({
-            totalAssets: 1_000_000e6,
-            lockedCollateral: 0
-        });
+        VolatilitySurface.PoolState memory poolState =
+            VolatilitySurface.PoolState({ totalAssets: 1_000_000e6, lockedCollateral: 0 });
 
         VolatilitySurface.SurfaceConfig memory config = VolatilitySurface.getDefaultConfig();
 
@@ -227,7 +216,7 @@ contract VolatilitySurfaceTest is Test {
         VolatilitySurface.PoolState memory poolState = VolatilitySurface.PoolState({
             totalAssets: 1_000_000e6,
             lockedCollateral: 800_000e6 // 80% utilization
-        });
+         });
 
         VolatilitySurface.SurfaceConfig memory config = VolatilitySurface.getDefaultConfig();
 
@@ -256,12 +245,8 @@ contract VolatilitySurfaceTest is Test {
 
     /// @notice Test simplified IV with utilization
     function test_getImpliedVolatilitySimple_WithUtilization() public pure {
-        SD59x18 ivNoUtil = VolatilitySurface.getImpliedVolatilitySimple(
-            sd(ETH_PRICE),
-            sd(ATM_STRIKE),
-            sd(REALIZED_VOL_30),
-            sd(0)
-        );
+        SD59x18 ivNoUtil =
+            VolatilitySurface.getImpliedVolatilitySimple(sd(ETH_PRICE), sd(ATM_STRIKE), sd(REALIZED_VOL_30), sd(0));
 
         SD59x18 ivWithUtil = VolatilitySurface.getImpliedVolatilitySimple(
             sd(ETH_PRICE),
@@ -279,10 +264,8 @@ contract VolatilitySurfaceTest is Test {
 
     /// @notice Test zero utilization
     function test_calculateUtilization_Zero() public pure {
-        VolatilitySurface.PoolState memory poolState = VolatilitySurface.PoolState({
-            totalAssets: 1_000_000e6,
-            lockedCollateral: 0
-        });
+        VolatilitySurface.PoolState memory poolState =
+            VolatilitySurface.PoolState({ totalAssets: 1_000_000e6, lockedCollateral: 0 });
 
         SD59x18 utilization = VolatilitySurface.calculateUtilization(poolState);
         assertEq(SD59x18.unwrap(utilization), 0);
@@ -290,10 +273,8 @@ contract VolatilitySurfaceTest is Test {
 
     /// @notice Test 50% utilization
     function test_calculateUtilization_Half() public pure {
-        VolatilitySurface.PoolState memory poolState = VolatilitySurface.PoolState({
-            totalAssets: 1_000_000e6,
-            lockedCollateral: 500_000e6
-        });
+        VolatilitySurface.PoolState memory poolState =
+            VolatilitySurface.PoolState({ totalAssets: 1_000_000e6, lockedCollateral: 500_000e6 });
 
         SD59x18 utilization = VolatilitySurface.calculateUtilization(poolState);
         assertEq(SD59x18.unwrap(utilization), HALF);
@@ -301,10 +282,8 @@ contract VolatilitySurfaceTest is Test {
 
     /// @notice Test full utilization
     function test_calculateUtilization_Full() public pure {
-        VolatilitySurface.PoolState memory poolState = VolatilitySurface.PoolState({
-            totalAssets: 1_000_000e6,
-            lockedCollateral: 1_000_000e6
-        });
+        VolatilitySurface.PoolState memory poolState =
+            VolatilitySurface.PoolState({ totalAssets: 1_000_000e6, lockedCollateral: 1_000_000e6 });
 
         SD59x18 utilization = VolatilitySurface.calculateUtilization(poolState);
         assertEq(SD59x18.unwrap(utilization), ONE);
@@ -312,10 +291,8 @@ contract VolatilitySurfaceTest is Test {
 
     /// @notice Test revert on zero total assets
     function test_calculateUtilization_RevertOnZeroTotal() public {
-        VolatilitySurface.PoolState memory poolState = VolatilitySurface.PoolState({
-            totalAssets: 0,
-            lockedCollateral: 0
-        });
+        VolatilitySurface.PoolState memory poolState =
+            VolatilitySurface.PoolState({ totalAssets: 0, lockedCollateral: 0 });
 
         vm.expectRevert(VolatilitySurface.VolatilitySurface__ZeroTotalAssets.selector);
         harness.calculateUtilization(poolState);
@@ -323,16 +300,12 @@ contract VolatilitySurfaceTest is Test {
 
     /// @notice Test revert when locked exceeds total
     function test_calculateUtilization_RevertOnLockedExceedsTotal() public {
-        VolatilitySurface.PoolState memory poolState = VolatilitySurface.PoolState({
-            totalAssets: 1_000_000e6,
-            lockedCollateral: 2_000_000e6
-        });
+        VolatilitySurface.PoolState memory poolState =
+            VolatilitySurface.PoolState({ totalAssets: 1_000_000e6, lockedCollateral: 2_000_000e6 });
 
         vm.expectRevert(
             abi.encodeWithSelector(
-                VolatilitySurface.VolatilitySurface__LockedExceedsTotal.selector,
-                2_000_000e6,
-                1_000_000e6
+                VolatilitySurface.VolatilitySurface__LockedExceedsTotal.selector, 2_000_000e6, 1_000_000e6
             )
         );
         harness.calculateUtilization(poolState);
@@ -385,10 +358,7 @@ contract VolatilitySurfaceTest is Test {
     /// @notice Test revert on utilization at or above 99%
     function test_calculateUtilizationPremium_RevertOnHighUtilization() public {
         vm.expectRevert(
-            abi.encodeWithSelector(
-                VolatilitySurface.VolatilitySurface__UtilizationTooHigh.selector,
-                990000000000000000
-            )
+            abi.encodeWithSelector(VolatilitySurface.VolatilitySurface__UtilizationTooHigh.selector, 990000000000000000)
         );
         harness.calculateUtilizationPremium(sd(990000000000000000), sd(HALF));
     }
@@ -556,13 +526,7 @@ contract VolatilitySurfaceTest is Test {
         assertEq(SD59x18.unwrap(ivLower), REALIZED_VOL_30);
 
         SD59x18 ivUpper = VolatilitySurface.interpolateCubic(
-            sd(2200e18),
-            sd(1800e18),
-            sd(2200e18),
-            sd(REALIZED_VOL_30),
-            sd(REALIZED_VOL_50),
-            sd(0),
-            sd(0)
+            sd(2200e18), sd(1800e18), sd(2200e18), sd(REALIZED_VOL_30), sd(REALIZED_VOL_50), sd(0), sd(0)
         );
         assertEq(SD59x18.unwrap(ivUpper), REALIZED_VOL_50);
     }
@@ -570,21 +534,11 @@ contract VolatilitySurfaceTest is Test {
     /// @notice Test cubic interpolation with zero slopes matches linear midpoint
     function test_interpolateCubic_ZeroSlopesMatchLinear() public pure {
         SD59x18 ivCubic = VolatilitySurface.interpolateCubic(
-            sd(2000e18),
-            sd(1800e18),
-            sd(2200e18),
-            sd(REALIZED_VOL_30),
-            sd(REALIZED_VOL_50),
-            sd(0),
-            sd(0)
+            sd(2000e18), sd(1800e18), sd(2200e18), sd(REALIZED_VOL_30), sd(REALIZED_VOL_50), sd(0), sd(0)
         );
 
         SD59x18 ivLinear = VolatilitySurface.interpolateLinear(
-            sd(2000e18),
-            sd(1800e18),
-            sd(2200e18),
-            sd(REALIZED_VOL_30),
-            sd(REALIZED_VOL_50)
+            sd(2000e18), sd(1800e18), sd(2200e18), sd(REALIZED_VOL_30), sd(REALIZED_VOL_50)
         );
 
         // With zero slopes, cubic Hermite should be close to linear at midpoint
@@ -778,7 +732,7 @@ contract VolatilitySurfaceTest is Test {
         VolatilitySurface.PoolState memory highUtil = VolatilitySurface.PoolState({
             totalAssets: 1_000_000e6,
             lockedCollateral: 700_000e6 // 70% utilization
-        });
+         });
 
         VolatilitySurface.SurfaceConfig memory config = VolatilitySurface.getDefaultConfig();
 
@@ -796,29 +750,14 @@ contract VolatilitySurfaceTest is Test {
         int256 iv1Raw = REALIZED_VOL_30;
         int256 iv2Raw = REALIZED_VOL_50;
 
-        SD59x18 iv25 = VolatilitySurface.interpolateLinear(
-            sd(1900e18),
-            sd(1800e18),
-            sd(2200e18),
-            sd(iv1Raw),
-            sd(iv2Raw)
-        );
+        SD59x18 iv25 =
+            VolatilitySurface.interpolateLinear(sd(1900e18), sd(1800e18), sd(2200e18), sd(iv1Raw), sd(iv2Raw));
 
-        SD59x18 iv50 = VolatilitySurface.interpolateLinear(
-            sd(2000e18),
-            sd(1800e18),
-            sd(2200e18),
-            sd(iv1Raw),
-            sd(iv2Raw)
-        );
+        SD59x18 iv50 =
+            VolatilitySurface.interpolateLinear(sd(2000e18), sd(1800e18), sd(2200e18), sd(iv1Raw), sd(iv2Raw));
 
-        SD59x18 iv75 = VolatilitySurface.interpolateLinear(
-            sd(2100e18),
-            sd(1800e18),
-            sd(2200e18),
-            sd(iv1Raw),
-            sd(iv2Raw)
-        );
+        SD59x18 iv75 =
+            VolatilitySurface.interpolateLinear(sd(2100e18), sd(1800e18), sd(2200e18), sd(iv1Raw), sd(iv2Raw));
 
         // Should be monotonically increasing
         assertTrue(iv50.gt(iv25));

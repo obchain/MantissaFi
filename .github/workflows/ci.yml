@@ -54,16 +54,33 @@ jobs:
   lint:
     name: Lint & Format
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v4
         with:
           submodules: recursive
+          ref: ${{ github.head_ref || github.ref_name }}
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Install Foundry
         uses: foundry-rs/foundry-toolchain@v1
 
-      - name: Check formatting
-        run: forge fmt --check src/ test/
+      - name: Format code
+        run: forge fmt src/ test/
+
+      - name: Commit formatting fixes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          if ! git diff --quiet; then
+            git add -A
+            git commit -m "style: auto-format with forge fmt"
+            git push
+            echo "Formatting fixes committed and pushed."
+          else
+            echo "Code is already formatted."
+          fi
 
       - name: Run Solhint (if available)
         run: |

@@ -26,7 +26,6 @@ contract OptionVault is ReentrancyGuard, Pausable, Ownable {
         ACTIVE, // Series is open for minting
         EXPIRED, // Past expiry, awaiting settlement
         SETTLED // Settlement complete, payouts available
-
     }
 
     /// @notice Configuration for an option series

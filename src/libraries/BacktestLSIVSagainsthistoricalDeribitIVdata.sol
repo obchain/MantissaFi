@@ -370,11 +370,7 @@ library BacktestLSIVSagainsthistoricalDeribitIVdata {
     /// @param predictedIVs Array of predicted IVs
     /// @param actualIVs Array of actual IVs
     /// @return mae The MAE value
-    function computeMAE(SD59x18[] memory predictedIVs, SD59x18[] memory actualIVs)
-        internal
-        pure
-        returns (SD59x18 mae)
-    {
+    function computeMAE(SD59x18[] memory predictedIVs, SD59x18[] memory actualIVs) internal pure returns (SD59x18 mae) {
         uint256 n = predictedIVs.length;
         if (n == 0) revert EmptyArrays();
         if (n != actualIVs.length) revert ArrayLengthMismatch();
@@ -599,8 +595,9 @@ library BacktestLSIVSagainsthistoricalDeribitIVdata {
         impliedVols = new SD59x18[](n);
 
         for (uint256 i = 0; i < n; i++) {
-            impliedVols[i] =
-                computeLSIVS(spotPrices[i], strikePrices[i], timesToExpiry[i], realizedVols[i], utilizations[i], params);
+            impliedVols[i] = computeLSIVS(
+                spotPrices[i], strikePrices[i], timesToExpiry[i], realizedVols[i], utilizations[i], params
+            );
         }
     }
 

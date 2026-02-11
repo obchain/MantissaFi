@@ -22,37 +22,38 @@ contract OptionVault is ReentrancyGuard, Pausable, Ownable {
     /// @notice Option series state machine
     /// @dev CREATED -> ACTIVE -> EXPIRED -> SETTLED
     enum SeriesState {
-        CREATED,    // Series created but not yet active
-        ACTIVE,     // Series is open for minting
-        EXPIRED,    // Past expiry, awaiting settlement
-        SETTLED     // Settlement complete, payouts available
+        CREATED, // Series created but not yet active
+        ACTIVE, // Series is open for minting
+        EXPIRED, // Past expiry, awaiting settlement
+        SETTLED // Settlement complete, payouts available
+
     }
 
     /// @notice Configuration for an option series
     struct OptionSeries {
-        address underlying;      // Underlying asset address
-        address collateral;      // Collateral token (e.g., USDC)
-        int256 strike;           // Strike price in SD59x18
-        uint64 expiry;           // Expiry timestamp
-        bool isCall;             // True for call, false for put
+        address underlying; // Underlying asset address
+        address collateral; // Collateral token (e.g., USDC)
+        int256 strike; // Strike price in SD59x18
+        uint64 expiry; // Expiry timestamp
+        bool isCall; // True for call, false for put
     }
 
     /// @notice Full state of an option series
     struct SeriesData {
-        OptionSeries config;          // Series configuration
-        SeriesState state;            // Current state
-        uint256 totalMinted;          // Total options minted
-        uint256 totalExercised;       // Total options exercised
-        uint256 collateralLocked;     // Total collateral locked
-        int256 settlementPrice;       // Price at settlement (SD59x18)
-        uint64 createdAt;             // Creation timestamp
+        OptionSeries config; // Series configuration
+        SeriesState state; // Current state
+        uint256 totalMinted; // Total options minted
+        uint256 totalExercised; // Total options exercised
+        uint256 collateralLocked; // Total collateral locked
+        int256 settlementPrice; // Price at settlement (SD59x18)
+        uint64 createdAt; // Creation timestamp
     }
 
     /// @notice User position in a series
     struct Position {
-        uint256 longAmount;      // Options owned (buyer)
-        uint256 shortAmount;     // Options written (seller)
-        bool hasClaimed;         // Whether payout has been claimed
+        uint256 longAmount; // Options owned (buyer)
+        uint256 shortAmount; // Options written (seller)
+        bool hasClaimed; // Whether payout has been claimed
     }
 
     // =========================================================================
@@ -82,40 +83,20 @@ contract OptionVault is ReentrancyGuard, Pausable, Ownable {
     // =========================================================================
 
     event SeriesCreated(
-        uint256 indexed seriesId,
-        address indexed underlying,
-        int256 strike,
-        uint64 expiry,
-        bool isCall
+        uint256 indexed seriesId, address indexed underlying, int256 strike, uint64 expiry, bool isCall
     );
 
     event SeriesActivated(uint256 indexed seriesId);
 
     event OptionMinted(
-        uint256 indexed seriesId,
-        address indexed minter,
-        uint256 amount,
-        uint256 premium,
-        uint256 collateral
+        uint256 indexed seriesId, address indexed minter, uint256 amount, uint256 premium, uint256 collateral
     );
 
-    event OptionExercised(
-        uint256 indexed seriesId,
-        address indexed exerciser,
-        uint256 amount,
-        uint256 payout
-    );
+    event OptionExercised(uint256 indexed seriesId, address indexed exerciser, uint256 amount, uint256 payout);
 
-    event SeriesSettled(
-        uint256 indexed seriesId,
-        int256 settlementPrice
-    );
+    event SeriesSettled(uint256 indexed seriesId, int256 settlementPrice);
 
-    event PayoutClaimed(
-        uint256 indexed seriesId,
-        address indexed claimer,
-        uint256 payout
-    );
+    event PayoutClaimed(uint256 indexed seriesId, address indexed claimer, uint256 payout);
 
     // =========================================================================
     // Errors
@@ -272,7 +253,11 @@ contract OptionVault is ReentrancyGuard, Pausable, Ownable {
     /// @param config The option series config
     /// @param amount Number of options
     /// @return collateral Required collateral amount
-    function _calculateCollateral(OptionSeries memory config, uint256 amount) internal pure returns (uint256 collateral) {
+    function _calculateCollateral(OptionSeries memory config, uint256 amount)
+        internal
+        pure
+        returns (uint256 collateral)
+    {
         if (config.isCall) {
             // Call option: need 1 unit of underlying per option
             // Assuming 18 decimals for underlying
@@ -334,9 +319,7 @@ contract OptionVault is ReentrancyGuard, Pausable, Ownable {
         int256 spotPrice = s.settlementPrice;
         if (spotPrice == 0) {
             // Mock: use strike * 1.1 for calls ITM, strike * 0.9 for puts ITM
-            spotPrice = s.config.isCall
-                ? (s.config.strike * 110) / 100
-                : (s.config.strike * 90) / 100;
+            spotPrice = s.config.isCall ? (s.config.strike * 110) / 100 : (s.config.strike * 90) / 100;
             s.settlementPrice = spotPrice;
         }
 
@@ -360,11 +343,11 @@ contract OptionVault is ReentrancyGuard, Pausable, Ownable {
     /// @param spotPrice The spot price at exercise (SD59x18)
     /// @param amount Number of options
     /// @return payout The payout amount
-    function _calculatePayout(
-        OptionSeries memory config,
-        int256 spotPrice,
-        uint256 amount
-    ) internal pure returns (uint256 payout) {
+    function _calculatePayout(OptionSeries memory config, int256 spotPrice, uint256 amount)
+        internal
+        pure
+        returns (uint256 payout)
+    {
         int256 strike = config.strike;
 
         if (config.isCall) {

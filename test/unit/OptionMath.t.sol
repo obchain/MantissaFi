@@ -5,15 +5,31 @@ import "forge-std/Test.sol";
 import { SD59x18, sd } from "@prb/math/SD59x18.sol";
 import { OptionMath } from "../../src/libraries/OptionMath.sol";
 
+/// @notice Wrapper contract to test library revert behavior
+contract OptionMathWrapper {
+    function moneyness(SD59x18 spot, SD59x18 strike) external pure returns (SD59x18) {
+        return OptionMath.moneyness(spot, strike);
+    }
+
+    function logMoneyness(SD59x18 spot, SD59x18 strike) external pure returns (SD59x18) {
+        return OptionMath.logMoneyness(spot, strike);
+    }
+}
+
 /// @title OptionMathTest
 /// @notice Unit tests for OptionMath library
 contract OptionMathTest is Test {
+    OptionMathWrapper internal wrapper;
     // Test values in SD59x18 format
     SD59x18 internal constant ETH_3000 = SD59x18.wrap(3000e18);
     SD59x18 internal constant ETH_3100 = SD59x18.wrap(3100e18);
     SD59x18 internal constant ETH_2900 = SD59x18.wrap(2900e18);
     SD59x18 internal constant ZERO = SD59x18.wrap(0);
     SD59x18 internal constant ONE = SD59x18.wrap(1e18);
+
+    function setUp() public {
+        wrapper = new OptionMathWrapper();
+    }
 
     // =========================================================================
     // Call Payoff Tests
@@ -99,12 +115,12 @@ contract OptionMathTest is Test {
 
     function test_moneyness_revertsOnZeroStrike() public {
         vm.expectRevert(OptionMath.OptionMath__InvalidStrikePrice.selector);
-        OptionMath.moneyness(ETH_3000, ZERO);
+        wrapper.moneyness(ETH_3000, ZERO);
     }
 
     function test_moneyness_revertsOnNegativeStrike() public {
         vm.expectRevert(OptionMath.OptionMath__InvalidStrikePrice.selector);
-        OptionMath.moneyness(ETH_3000, sd(-1e18));
+        wrapper.moneyness(ETH_3000, sd(-1e18));
     }
 
     // =========================================================================
@@ -138,12 +154,12 @@ contract OptionMathTest is Test {
 
     function test_logMoneyness_revertsOnZeroSpot() public {
         vm.expectRevert(OptionMath.OptionMath__InvalidSpotPrice.selector);
-        OptionMath.logMoneyness(ZERO, ETH_3000);
+        wrapper.logMoneyness(ZERO, ETH_3000);
     }
 
     function test_logMoneyness_revertsOnZeroStrike() public {
         vm.expectRevert(OptionMath.OptionMath__InvalidStrikePrice.selector);
-        OptionMath.logMoneyness(ETH_3000, ZERO);
+        wrapper.logMoneyness(ETH_3000, ZERO);
     }
 
     // =========================================================================

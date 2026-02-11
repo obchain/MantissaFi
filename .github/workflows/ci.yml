@@ -62,7 +62,7 @@ jobs:
         uses: foundry-rs/foundry-toolchain@v1
 
       - name: Check formatting
-        run: forge fmt --check
+        run: forge fmt --check src/ test/
 
       - name: Run Solhint (if available)
         run: |

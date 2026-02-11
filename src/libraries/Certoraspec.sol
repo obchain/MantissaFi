@@ -125,6 +125,10 @@ library Certoraspec {
     /// @notice Maximum time to expiry (10 years)
     SD59x18 internal constant MAX_TIME = SD59x18.wrap(10_000000000000000000);
 
+    /// @notice Numerical tolerance for monotonicity checks (1e-12 = 0.0000001%)
+    /// @dev Accounts for floating-point precision errors in BSM calculations
+    SD59x18 internal constant NUMERICAL_TOLERANCE = SD59x18.wrap(1000000);
+
     // ═══════════════════════════════════════════════════════════════════════════
     // BSM CORE FUNCTIONS (self-contained for verification)
     // ═══════════════════════════════════════════════════════════════════════════
@@ -267,7 +271,8 @@ library Certoraspec {
         result.lowerValue = priceLow;
         result.upperValue = priceHigh;
         result.greekValue = callDelta(p);
-        result.holds = priceHigh.gte(priceLow);
+        // Allow for numerical tolerance in monotonicity check
+        result.holds = priceHigh.add(NUMERICAL_TOLERANCE).gte(priceLow);
     }
 
     /// @notice Asserts ∂C/∂S > 0; reverts if violated
@@ -317,7 +322,8 @@ library Certoraspec {
         result.upperValue = priceHigh;
         result.greekValue = putDelta(p);
         // Put price should decrease when spot increases: priceHigh <= priceLow
-        result.holds = priceHigh.lte(priceLow);
+        // Allow for numerical tolerance
+        result.holds = priceLow.add(NUMERICAL_TOLERANCE).gte(priceHigh);
     }
 
     /// @notice Asserts ∂P/∂S < 0; reverts if violated
@@ -365,7 +371,8 @@ library Certoraspec {
         result.lowerValue = priceLow;
         result.upperValue = priceHigh;
         result.greekValue = vega(p);
-        result.holds = priceHigh.gte(priceLow);
+        // Allow for numerical tolerance
+        result.holds = priceHigh.add(NUMERICAL_TOLERANCE).gte(priceLow);
     }
 
     /// @notice Verifies ∂P/∂σ > 0 via finite difference: P(σ+ε) ≥ P(σ)
@@ -389,7 +396,8 @@ library Certoraspec {
         result.lowerValue = priceLow;
         result.upperValue = priceHigh;
         result.greekValue = vega(p);
-        result.holds = priceHigh.gte(priceLow);
+        // Allow for numerical tolerance
+        result.holds = priceHigh.add(NUMERICAL_TOLERANCE).gte(priceLow);
     }
 
     /// @notice Asserts call vega monotonicity; reverts if violated

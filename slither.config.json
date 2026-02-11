@@ -1,0 +1,9 @@
+{
+  "filter_paths": "test/,lib/,script/",
+  "detectors_to_exclude": "uninitialized-state,too-many-digits,timestamp",
+  "solc_remaps": [
+    "@prb/math/=lib/prb-math/src/",
+    "@openzeppelin/=lib/openzeppelin-contracts/"
+  ],
+  "fail_on": "medium"
+}

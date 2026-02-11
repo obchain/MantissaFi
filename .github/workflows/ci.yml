@@ -5,6 +5,7 @@ on:
     branches: [main]
   pull_request:
     branches: [main]
+  workflow_dispatch:
 
 env:
   FOUNDRY_PROFILE: ci
@@ -76,7 +77,6 @@ jobs:
   slither:
     name: Security Analysis
     runs-on: ubuntu-latest
-    continue-on-error: true
     steps:
       - uses: actions/checkout@v4
         with:
@@ -90,7 +90,6 @@ jobs:
 
       - name: Run Slither
         uses: crytic/slither-action@v0.4.0
-        continue-on-error: true
         with:
-          fail-on: none
-          slither-args: --filter-paths "lib/" --exclude-dependencies
+          fail-on: medium
+          slither-config: slither.config.json

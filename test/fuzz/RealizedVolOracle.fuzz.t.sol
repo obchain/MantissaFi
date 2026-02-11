@@ -152,10 +152,7 @@ contract RealizedVolOracleFuzzTest is Test {
     }
 
     /// @notice Fuzz test EWMA with random price sequences
-    function testFuzz_ewma_randomPriceSequence(
-        int256 seed,
-        uint8 numPrices
-    ) public {
+    function testFuzz_ewma_randomPriceSequence(int256 seed, uint8 numPrices) public {
         numPrices = uint8(bound(numPrices, 2, 30));
 
         oracle.configureAsset(asset, 940000000000000000, 1, DEFAULT_ANNUALIZATION);
@@ -188,12 +185,7 @@ contract RealizedVolOracleFuzzTest is Test {
     //////////////////////////////////////////////////////////////*/
 
     /// @notice Fuzz test that realized vol is always non-negative
-    function testFuzz_getRealizedVol_nonNegative(
-        int256 price1,
-        int256 price2,
-        int256 price3,
-        int256 price4
-    ) public {
+    function testFuzz_getRealizedVol_nonNegative(int256 price1, int256 price2, int256 price3, int256 price4) public {
         // Bound prices with limited ratio to avoid ln(0) issues
         int256 minP = 1e15;
         int256 maxP = 1e24;
@@ -217,10 +209,7 @@ contract RealizedVolOracleFuzzTest is Test {
     }
 
     /// @notice Fuzz test getRealizedVol with window
-    function testFuzz_getRealizedVolWithWindow_nonNegative(
-        uint256 window,
-        int256 basePrice
-    ) public {
+    function testFuzz_getRealizedVolWithWindow_nonNegative(uint256 window, int256 basePrice) public {
         // Window must be between 2 and MAX_OBSERVATIONS
         window = bound(window, 2, 20);
         basePrice = bound(basePrice, MIN_PRICE, MAX_PRICE / 2);
@@ -308,12 +297,9 @@ contract RealizedVolOracleFuzzTest is Test {
     //////////////////////////////////////////////////////////////*/
 
     /// @notice Fuzz test that multiple assets remain independent
-    function testFuzz_multiAsset_independence(
-        int256 price1,
-        int256 price2,
-        int256 decayFactor1,
-        int256 decayFactor2
-    ) public {
+    function testFuzz_multiAsset_independence(int256 price1, int256 price2, int256 decayFactor1, int256 decayFactor2)
+        public
+    {
         // Bound inputs
         price1 = bound(price1, MIN_PRICE, MAX_PRICE);
         price2 = bound(price2, MIN_PRICE, MAX_PRICE);
@@ -351,10 +337,7 @@ contract RealizedVolOracleFuzzTest is Test {
     //////////////////////////////////////////////////////////////*/
 
     /// @notice Fuzz test that volatility remains bounded for bounded price changes
-    function testFuzz_volatility_boundedForBoundedReturns(
-        int256 basePrice,
-        int8[] calldata priceDeltas
-    ) public {
+    function testFuzz_volatility_boundedForBoundedReturns(int256 basePrice, int8[] calldata priceDeltas) public {
         if (priceDeltas.length < 3) return;
 
         basePrice = bound(basePrice, 1e18, 1e24);

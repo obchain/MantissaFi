@@ -128,10 +128,7 @@ contract RealizedVolOracle {
     /// @param minObservations Minimum observations required
     /// @param annualizationFactor Factor for annualizing volatility
     event AssetConfigured(
-        address indexed asset,
-        int256 decayFactor,
-        uint256 minObservations,
-        int256 annualizationFactor
+        address indexed asset, int256 decayFactor, uint256 minObservations, int256 annualizationFactor
     );
 
     /// @notice Emitted when volatility is updated for an asset
@@ -139,12 +136,7 @@ contract RealizedVolOracle {
     /// @param price The new price observation
     /// @param variance The updated EWMA variance
     /// @param observationCount Total observations recorded
-    event VolatilityUpdated(
-        address indexed asset,
-        int256 price,
-        int256 variance,
-        uint256 observationCount
-    );
+    event VolatilityUpdated(address indexed asset, int256 price, int256 variance, uint256 observationCount);
 
     /// @notice Emitted when ownership is transferred
     /// @param previousOwner The previous owner address
@@ -157,10 +149,7 @@ contract RealizedVolOracle {
     /// @param minObservations The new minimum observations
     /// @param annualizationFactor The new annualization factor
     event AssetConfigUpdated(
-        address indexed asset,
-        int256 decayFactor,
-        uint256 minObservations,
-        int256 annualizationFactor
+        address indexed asset, int256 decayFactor, uint256 minObservations, int256 annualizationFactor
     );
 
     /*//////////////////////////////////////////////////////////////
@@ -207,12 +196,10 @@ contract RealizedVolOracle {
     /// @param decayFactor The decay factor λ (0.8 to 0.99)
     /// @param minObservations Minimum observations before valid volatility
     /// @param annualizationFactor Factor to annualize volatility (e.g., sqrt(365) for daily)
-    function configureAsset(
-        address asset,
-        int256 decayFactor,
-        uint256 minObservations,
-        int256 annualizationFactor
-    ) external onlyOwner {
+    function configureAsset(address asset, int256 decayFactor, uint256 minObservations, int256 annualizationFactor)
+        external
+        onlyOwner
+    {
         if (assetConfigs[asset].isConfigured) revert AssetAlreadyConfigured(asset);
         if (decayFactor < MIN_DECAY_FACTOR || decayFactor > MAX_DECAY_FACTOR) {
             revert InvalidDecayFactor(decayFactor);
@@ -235,12 +222,11 @@ contract RealizedVolOracle {
     /// @param decayFactor The new decay factor λ
     /// @param minObservations New minimum observations
     /// @param annualizationFactor New annualization factor
-    function updateAssetConfig(
-        address asset,
-        int256 decayFactor,
-        uint256 minObservations,
-        int256 annualizationFactor
-    ) external onlyOwner assetConfigured(asset) {
+    function updateAssetConfig(address asset, int256 decayFactor, uint256 minObservations, int256 annualizationFactor)
+        external
+        onlyOwner
+        assetConfigured(asset)
+    {
         if (decayFactor < MIN_DECAY_FACTOR || decayFactor > MAX_DECAY_FACTOR) {
             revert InvalidDecayFactor(decayFactor);
         }
@@ -297,20 +283,12 @@ contract RealizedVolOracle {
         }
 
         // Store new observation
-        observations[asset][newIndex] = Observation({
-            price: priceSD,
-            timestamp: block.timestamp
-        });
+        observations[asset][newIndex] = Observation({ price: priceSD, timestamp: block.timestamp });
 
         state.latestObservationIndex = newIndex;
         state.observationCount++;
 
-        emit VolatilityUpdated(
-            asset,
-            price,
-            state.variance.unwrap(),
-            state.observationCount
-        );
+        emit VolatilityUpdated(asset, price, state.variance.unwrap(), state.observationCount);
     }
 
     /// @notice Gets the current realized volatility for an asset
@@ -472,12 +450,7 @@ contract RealizedVolOracle {
     function getAssetConfig(address asset)
         external
         view
-        returns (
-            int256 decayFactor,
-            uint256 minObservations,
-            int256 annualizationFactor,
-            bool isConfigured
-        )
+        returns (int256 decayFactor, uint256 minObservations, int256 annualizationFactor, bool isConfigured)
     {
         AssetConfig storage config = assetConfigs[asset];
         return (

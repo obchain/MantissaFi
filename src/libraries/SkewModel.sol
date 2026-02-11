@@ -84,11 +84,11 @@ library SkewModel {
     /// @param spot The current spot price in SD59x18 format
     /// @param params The skew model parameters (alpha, beta)
     /// @return skewAdjustment The skew adjustment to apply to base IV (bounded between MIN_SKEW and MAX_SKEW)
-    function calculateSkew(
-        SD59x18 strike,
-        SD59x18 spot,
-        SkewParams memory params
-    ) internal pure returns (SD59x18 skewAdjustment) {
+    function calculateSkew(SD59x18 strike, SD59x18 spot, SkewParams memory params)
+        internal
+        pure
+        returns (SD59x18 skewAdjustment)
+    {
         // Validate inputs
         if (spot.lte(ZERO)) revert SkewModel__InvalidSpotPrice();
         if (strike.lte(ZERO)) revert SkewModel__InvalidStrikePrice();
@@ -117,12 +117,11 @@ library SkewModel {
     /// @param spot The current spot price in SD59x18 format
     /// @param params The skew model parameters
     /// @return adjustedIV The adjusted implied volatility after applying skew
-    function applySkew(
-        SD59x18 baseIV,
-        SD59x18 strike,
-        SD59x18 spot,
-        SkewParams memory params
-    ) internal pure returns (SD59x18 adjustedIV) {
+    function applySkew(SD59x18 baseIV, SD59x18 strike, SD59x18 spot, SkewParams memory params)
+        internal
+        pure
+        returns (SD59x18 adjustedIV)
+    {
         SD59x18 skew = calculateSkew(strike, spot, params);
 
         // adjustedIV = baseIV * (1 + skew)

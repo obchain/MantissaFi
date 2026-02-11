@@ -8,20 +8,19 @@ import { SkewModel } from "../../src/libraries/SkewModel.sol";
 /// @title SkewModelFuzzHarness
 /// @notice Harness contract to expose internal library functions for fuzz testing
 contract SkewModelFuzzHarness {
-    function calculateSkew(
-        SD59x18 strike,
-        SD59x18 spot,
-        SkewModel.SkewParams memory params
-    ) external pure returns (SD59x18) {
+    function calculateSkew(SD59x18 strike, SD59x18 spot, SkewModel.SkewParams memory params)
+        external
+        pure
+        returns (SD59x18)
+    {
         return SkewModel.calculateSkew(strike, spot, params);
     }
 
-    function applySkew(
-        SD59x18 baseIV,
-        SD59x18 strike,
-        SD59x18 spot,
-        SkewModel.SkewParams memory params
-    ) external pure returns (SD59x18) {
+    function applySkew(SD59x18 baseIV, SD59x18 strike, SD59x18 spot, SkewModel.SkewParams memory params)
+        external
+        pure
+        returns (SD59x18)
+    {
         return SkewModel.applySkew(baseIV, strike, spot, params);
     }
 
@@ -115,12 +114,7 @@ contract SkewModelFuzzTest is Test {
     // ═══════════════════════════════════════════════════════════════════════════════
 
     /// @notice Fuzz test: skew is always within bounds for any valid inputs
-    function testFuzz_SkewAlwaysBounded(
-        int256 strike,
-        int256 spot,
-        int256 alpha,
-        int256 beta
-    ) public view {
+    function testFuzz_SkewAlwaysBounded(int256 strike, int256 spot, int256 alpha, int256 beta) public view {
         // Bound inputs to valid ranges with reasonable ratio
         (strike, spot) = _boundPricesWithRatio(strike, spot);
         SkewModel.SkewParams memory params = _boundParams(alpha, beta);
@@ -137,11 +131,7 @@ contract SkewModelFuzzTest is Test {
     // ═══════════════════════════════════════════════════════════════════════════════
 
     /// @notice Fuzz test: when strike equals spot, skew is zero
-    function testFuzz_AtTheMoneySkewIsZero(
-        int256 price,
-        int256 alpha,
-        int256 beta
-    ) public view {
+    function testFuzz_AtTheMoneySkewIsZero(int256 price, int256 alpha, int256 beta) public view {
         // Use same price for both strike and spot
         price = _boundPrice(price);
         SkewModel.SkewParams memory params = _boundParams(alpha, beta);
@@ -157,13 +147,10 @@ contract SkewModelFuzzTest is Test {
     // ═══════════════════════════════════════════════════════════════════════════════
 
     /// @notice Fuzz test: adjusted IV is never negative
-    function testFuzz_AdjustedIVNonNegative(
-        int256 baseIV,
-        int256 strike,
-        int256 spot,
-        int256 alpha,
-        int256 beta
-    ) public view {
+    function testFuzz_AdjustedIVNonNegative(int256 baseIV, int256 strike, int256 spot, int256 alpha, int256 beta)
+        public
+        view
+    {
         // Bound inputs
         baseIV = bound(baseIV, 0, 10e18); // IV between 0% and 1000%
         (strike, spot) = _boundPricesWithRatio(strike, spot);
@@ -180,12 +167,7 @@ contract SkewModelFuzzTest is Test {
     // ═══════════════════════════════════════════════════════════════════════════════
 
     /// @notice Fuzz test: skew formula produces expected mathematical result
-    function testFuzz_SkewFormulaCorrectness(
-        int256 strike,
-        int256 spot,
-        int256 alpha,
-        int256 beta
-    ) public view {
+    function testFuzz_SkewFormulaCorrectness(int256 strike, int256 spot, int256 alpha, int256 beta) public view {
         // Use moderate values to avoid overflow in manual calculation
         spot = bound(spot, 1e17, 1e21);
         strike = bound(strike, spot / 5, spot * 5); // K/S in [0.2, 5]
@@ -221,11 +203,7 @@ contract SkewModelFuzzTest is Test {
     // ═══════════════════════════════════════════════════════════════════════════════
 
     /// @notice Fuzz test: with beta=0, skew is non-negative (pure smile effect)
-    function testFuzz_SymmetricSmileWithZeroBeta(
-        int256 deviation,
-        int256 basePrice,
-        int256 alpha
-    ) public view {
+    function testFuzz_SymmetricSmileWithZeroBeta(int256 deviation, int256 basePrice, int256 alpha) public view {
         // Bound inputs
         basePrice = bound(basePrice, 1e17, 1e21);
         deviation = bound(deviation, 1e15, basePrice / 2); // Up to 50% deviation
@@ -285,13 +263,10 @@ contract SkewModelFuzzTest is Test {
     // ═══════════════════════════════════════════════════════════════════════════════
 
     /// @notice Fuzz test: applySkew multiplies correctly
-    function testFuzz_ApplySkewMultiplier(
-        int256 baseIV,
-        int256 strike,
-        int256 spot,
-        int256 alpha,
-        int256 beta
-    ) public view {
+    function testFuzz_ApplySkewMultiplier(int256 baseIV, int256 strike, int256 spot, int256 alpha, int256 beta)
+        public
+        view
+    {
         baseIV = bound(baseIV, 1e16, 5e18); // 1% to 500% IV
         (strike, spot) = _boundPricesWithRatio(strike, spot);
         SkewModel.SkewParams memory params = _boundParams(alpha, beta);
@@ -411,12 +386,10 @@ contract SkewModelFuzzTest is Test {
     // ═══════════════════════════════════════════════════════════════════════════════
 
     /// @notice Fuzz test: no overflow for reasonable moneyness ratios
-    function testFuzz_NoOverflowForReasonableInputs(
-        int256 strike,
-        int256 spot,
-        int256 alpha,
-        int256 beta
-    ) public view {
+    function testFuzz_NoOverflowForReasonableInputs(int256 strike, int256 spot, int256 alpha, int256 beta)
+        public
+        view
+    {
         // Use bounded ratio to prevent overflow
         (strike, spot) = _boundPricesWithRatio(strike, spot);
         SkewModel.SkewParams memory params = _boundParams(alpha, beta);

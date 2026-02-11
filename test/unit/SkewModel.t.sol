@@ -8,20 +8,19 @@ import { SkewModel } from "../../src/libraries/SkewModel.sol";
 /// @title SkewModelHarness
 /// @notice Harness contract to expose internal library functions for testing
 contract SkewModelHarness {
-    function calculateSkew(
-        SD59x18 strike,
-        SD59x18 spot,
-        SkewModel.SkewParams memory params
-    ) external pure returns (SD59x18) {
+    function calculateSkew(SD59x18 strike, SD59x18 spot, SkewModel.SkewParams memory params)
+        external
+        pure
+        returns (SD59x18)
+    {
         return SkewModel.calculateSkew(strike, spot, params);
     }
 
-    function applySkew(
-        SD59x18 baseIV,
-        SD59x18 strike,
-        SD59x18 spot,
-        SkewModel.SkewParams memory params
-    ) external pure returns (SD59x18) {
+    function applySkew(SD59x18 baseIV, SD59x18 strike, SD59x18 spot, SkewModel.SkewParams memory params)
+        external
+        pure
+        returns (SD59x18)
+    {
         return SkewModel.applySkew(baseIV, strike, spot, params);
     }
 

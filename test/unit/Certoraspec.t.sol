@@ -179,11 +179,7 @@ contract CertoraspecTest is Test {
         returns (PricingParams memory)
     {
         return PricingParams({
-            spot: sd(spot),
-            strike: sd(strike),
-            volatility: sd(vol),
-            riskFreeRate: sd(rate),
-            timeToExpiry: sd(time)
+            spot: sd(spot), strike: sd(strike), volatility: sd(vol), riskFreeRate: sd(rate), timeToExpiry: sd(time)
         });
     }
 

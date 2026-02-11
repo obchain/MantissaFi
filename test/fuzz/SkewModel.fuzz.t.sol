@@ -386,10 +386,7 @@ contract SkewModelFuzzTest is Test {
     // ═══════════════════════════════════════════════════════════════════════════════
 
     /// @notice Fuzz test: no overflow for reasonable moneyness ratios
-    function testFuzz_NoOverflowForReasonableInputs(int256 strike, int256 spot, int256 alpha, int256 beta)
-        public
-        view
-    {
+    function testFuzz_NoOverflowForReasonableInputs(int256 strike, int256 spot, int256 alpha, int256 beta) public view {
         // Use bounded ratio to prevent overflow
         (strike, spot) = _boundPricesWithRatio(strike, spot);
         SkewModel.SkewParams memory params = _boundParams(alpha, beta);

@@ -56,11 +56,7 @@ contract CertoraspecFuzzTest is Test {
         int256 strike = bound(strikeRaw, minStrike, maxStrike);
 
         return PricingParams({
-            spot: sd(spot),
-            strike: sd(strike),
-            volatility: sd(vol),
-            riskFreeRate: sd(rate),
-            timeToExpiry: sd(time)
+            spot: sd(spot), strike: sd(strike), volatility: sd(vol), riskFreeRate: sd(rate), timeToExpiry: sd(time)
         });
     }
 

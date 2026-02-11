@@ -227,11 +227,7 @@ library VolatilitySurface {
     /// @param strike Option strike price (SD59x18)
     /// @param skewCoefficient Skew sensitivity (SD59x18)
     /// @return skew The skew adjustment in SD59x18 format
-    function calculateSkew(SD59x18 spot, SD59x18 strike, SD59x18 skewCoefficient)
-        internal
-        pure
-        returns (SD59x18 skew)
-    {
+    function calculateSkew(SD59x18 spot, SD59x18 strike, SD59x18 skewCoefficient) internal pure returns (SD59x18 skew) {
         if (spot.lte(ZERO)) revert VolatilitySurface__InvalidSpotPrice();
         if (strike.lte(ZERO)) revert VolatilitySurface__InvalidStrikePrice();
         if (skewCoefficient.lt(ZERO)) revert VolatilitySurface__InvalidSkewCoefficient();

@@ -465,11 +465,11 @@ library Integrationtest {
     /// @param amount Number of options to mint
     /// @param spotPrice Current spot price
     /// @return collateral Required collateral amount
-    function calculateRequiredCollateral(
-        OptionSeries memory series,
-        SD59x18 amount,
-        SD59x18 spotPrice
-    ) internal pure returns (SD59x18 collateral) {
+    function calculateRequiredCollateral(OptionSeries memory series, SD59x18 amount, SD59x18 spotPrice)
+        internal
+        pure
+        returns (SD59x18 collateral)
+    {
         if (amount.lte(ZERO)) {
             revert ZeroAmount();
         }
@@ -494,11 +494,11 @@ library Integrationtest {
     /// @param spotPrice Current spot price at exercise
     /// @return payoff The payoff amount (can be zero if OTM)
     /// @return isITM Whether the option is in-the-money
-    function calculateExercisePayoff(
-        OptionSeries memory series,
-        SD59x18 amount,
-        SD59x18 spotPrice
-    ) internal pure returns (SD59x18 payoff, bool isITM) {
+    function calculateExercisePayoff(OptionSeries memory series, SD59x18 amount, SD59x18 spotPrice)
+        internal
+        pure
+        returns (SD59x18 payoff, bool isITM)
+    {
         if (amount.lte(ZERO)) {
             revert ZeroAmount();
         }
@@ -554,11 +554,11 @@ library Integrationtest {
     /// @param totalAssets Current total assets in pool
     /// @param totalShares Current total shares outstanding
     /// @return shares Number of shares to mint
-    function calculateDepositShares(
-        SD59x18 depositAmount,
-        SD59x18 totalAssets,
-        SD59x18 totalShares
-    ) internal pure returns (SD59x18 shares) {
+    function calculateDepositShares(SD59x18 depositAmount, SD59x18 totalAssets, SD59x18 totalShares)
+        internal
+        pure
+        returns (SD59x18 shares)
+    {
         if (depositAmount.lte(ZERO)) {
             revert ZeroAmount();
         }
@@ -577,11 +577,11 @@ library Integrationtest {
     /// @param totalAssets Current total assets in pool
     /// @param totalShares Current total shares outstanding
     /// @return withdrawAmount Amount to withdraw
-    function calculateWithdrawAmount(
-        SD59x18 sharesToBurn,
-        SD59x18 totalAssets,
-        SD59x18 totalShares
-    ) internal pure returns (SD59x18 withdrawAmount) {
+    function calculateWithdrawAmount(SD59x18 sharesToBurn, SD59x18 totalAssets, SD59x18 totalShares)
+        internal
+        pure
+        returns (SD59x18 withdrawAmount)
+    {
         if (sharesToBurn.lte(ZERO)) {
             revert ZeroAmount();
         }
@@ -599,15 +599,14 @@ library Integrationtest {
     /// @param premium Premium collected
     /// @param collateralRequired Collateral to lock
     /// @return Updated pool state
-    function updatePoolAfterMint(
-        PoolState memory pool,
-        SD59x18 premium,
-        SD59x18 collateralRequired
-    ) internal pure returns (PoolState memory) {
+    function updatePoolAfterMint(PoolState memory pool, SD59x18 premium, SD59x18 collateralRequired)
+        internal
+        pure
+        returns (PoolState memory)
+    {
         if (pool.availableLiquidity.lt(collateralRequired)) {
             revert InsufficientLiquidity(
-                uint256(SD59x18.unwrap(collateralRequired)),
-                uint256(SD59x18.unwrap(pool.availableLiquidity))
+                uint256(SD59x18.unwrap(collateralRequired)), uint256(SD59x18.unwrap(pool.availableLiquidity))
             );
         }
 
@@ -624,11 +623,11 @@ library Integrationtest {
     /// @param payoff Payoff amount to the exerciser
     /// @param collateralReleased Collateral being released
     /// @return Updated pool state
-    function updatePoolAfterExercise(
-        PoolState memory pool,
-        SD59x18 payoff,
-        SD59x18 collateralReleased
-    ) internal pure returns (PoolState memory) {
+    function updatePoolAfterExercise(PoolState memory pool, SD59x18 payoff, SD59x18 collateralReleased)
+        internal
+        pure
+        returns (PoolState memory)
+    {
         pool.totalAssets = pool.totalAssets.sub(payoff);
         pool.lockedCollateral = pool.lockedCollateral.sub(collateralReleased);
         pool.availableLiquidity = pool.totalAssets.sub(pool.lockedCollateral);
@@ -641,10 +640,11 @@ library Integrationtest {
     /// @param pool Current pool state
     /// @param collateralReleased Collateral being released
     /// @return Updated pool state
-    function updatePoolAfterOTMExpiry(
-        PoolState memory pool,
-        SD59x18 collateralReleased
-    ) internal pure returns (PoolState memory) {
+    function updatePoolAfterOTMExpiry(PoolState memory pool, SD59x18 collateralReleased)
+        internal
+        pure
+        returns (PoolState memory)
+    {
         pool.lockedCollateral = pool.lockedCollateral.sub(collateralReleased);
         pool.availableLiquidity = pool.totalAssets.sub(pool.lockedCollateral);
 
@@ -682,10 +682,11 @@ library Integrationtest {
     /// @param currentPrice Current price
     /// @param priceChangePercent Percentage change (-100 to +infinite, in 1e18 format)
     /// @return newPrice Updated price
-    function simulatePriceMove(
-        SD59x18 currentPrice,
-        SD59x18 priceChangePercent
-    ) internal pure returns (SD59x18 newPrice) {
+    function simulatePriceMove(SD59x18 currentPrice, SD59x18 priceChangePercent)
+        internal
+        pure
+        returns (SD59x18 newPrice)
+    {
         // newPrice = currentPrice * (1 + priceChangePercent)
         SD59x18 multiplier = sd(1e18).add(priceChangePercent);
         newPrice = currentPrice.mul(multiplier);

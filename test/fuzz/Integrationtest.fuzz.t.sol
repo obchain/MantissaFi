@@ -73,13 +73,11 @@ contract IntegrationtestFuzzTest is Test {
     }
 
     /// @notice Creates bounded BSM inputs
-    function _createBoundedBSMInputs(
-        int256 spot,
-        int256 strike,
-        int256 vol,
-        int256 rate,
-        int256 time
-    ) internal pure returns (BSMInputs memory) {
+    function _createBoundedBSMInputs(int256 spot, int256 strike, int256 vol, int256 rate, int256 time)
+        internal
+        pure
+        returns (BSMInputs memory)
+    {
         return BSMInputs({
             spot: _boundPrice(spot),
             strike: _boundPrice(strike),
@@ -95,13 +93,10 @@ contract IntegrationtestFuzzTest is Test {
 
     /// @notice Invariant: Call price is always non-negative
     /// @dev C >= 0 for all valid inputs
-    function testFuzz_CallPriceNonNegative(
-        int256 spot,
-        int256 strike,
-        int256 vol,
-        int256 rate,
-        int256 time
-    ) public pure {
+    function testFuzz_CallPriceNonNegative(int256 spot, int256 strike, int256 vol, int256 rate, int256 time)
+        public
+        pure
+    {
         BSMInputs memory inputs = _createBoundedBSMInputs(spot, strike, vol, rate, time);
         SD59x18 price = Integrationtest.priceCall(inputs);
 
@@ -110,13 +105,10 @@ contract IntegrationtestFuzzTest is Test {
 
     /// @notice Invariant: Put price is always non-negative
     /// @dev P >= 0 for all valid inputs
-    function testFuzz_PutPriceNonNegative(
-        int256 spot,
-        int256 strike,
-        int256 vol,
-        int256 rate,
-        int256 time
-    ) public pure {
+    function testFuzz_PutPriceNonNegative(int256 spot, int256 strike, int256 vol, int256 rate, int256 time)
+        public
+        pure
+    {
         BSMInputs memory inputs = _createBoundedBSMInputs(spot, strike, vol, rate, time);
         SD59x18 price = Integrationtest.pricePut(inputs);
 
@@ -125,13 +117,10 @@ contract IntegrationtestFuzzTest is Test {
 
     /// @notice Invariant: Call price <= Spot price (no arbitrage)
     /// @dev C <= S for all valid inputs
-    function testFuzz_CallPriceBoundedBySpot(
-        int256 spot,
-        int256 strike,
-        int256 vol,
-        int256 rate,
-        int256 time
-    ) public pure {
+    function testFuzz_CallPriceBoundedBySpot(int256 spot, int256 strike, int256 vol, int256 rate, int256 time)
+        public
+        pure
+    {
         BSMInputs memory inputs = _createBoundedBSMInputs(spot, strike, vol, rate, time);
         SD59x18 price = Integrationtest.priceCall(inputs);
 
@@ -158,13 +147,7 @@ contract IntegrationtestFuzzTest is Test {
 
     /// @notice Invariant: Put-call parity holds within tolerance
     /// @dev |C - P - S + K*e^(-rT)| < epsilon for all valid inputs
-    function testFuzz_PutCallParity(
-        int256 spot,
-        int256 strike,
-        int256 vol,
-        int256 rate,
-        int256 time
-    ) public pure {
+    function testFuzz_PutCallParity(int256 spot, int256 strike, int256 vol, int256 rate, int256 time) public pure {
         BSMInputs memory inputs = _createBoundedBSMInputs(spot, strike, vol, rate, time);
 
         SD59x18 callPrice = Integrationtest.priceCall(inputs);
@@ -185,13 +168,7 @@ contract IntegrationtestFuzzTest is Test {
 
     /// @notice Invariant: d2 < d1 always
     /// @dev d2 = d1 - sigma * sqrt(T), so d2 < d1 when sigma, T > 0
-    function testFuzz_D2LessThanD1(
-        int256 spot,
-        int256 strike,
-        int256 vol,
-        int256 rate,
-        int256 time
-    ) public pure {
+    function testFuzz_D2LessThanD1(int256 spot, int256 strike, int256 vol, int256 rate, int256 time) public pure {
         BSMInputs memory inputs = _createBoundedBSMInputs(spot, strike, vol, rate, time);
 
         SD59x18 d1 = Integrationtest.computeD1(inputs);
@@ -206,13 +183,7 @@ contract IntegrationtestFuzzTest is Test {
 
     /// @notice Invariant: Call delta is in [0, 1]
     /// @dev 0 <= Delta_call <= 1
-    function testFuzz_CallDeltaInRange(
-        int256 spot,
-        int256 strike,
-        int256 vol,
-        int256 rate,
-        int256 time
-    ) public pure {
+    function testFuzz_CallDeltaInRange(int256 spot, int256 strike, int256 vol, int256 rate, int256 time) public pure {
         BSMInputs memory inputs = _createBoundedBSMInputs(spot, strike, vol, rate, time);
         BSMOutputs memory outputs = Integrationtest.computeBSM(inputs, true);
 
@@ -222,13 +193,7 @@ contract IntegrationtestFuzzTest is Test {
 
     /// @notice Invariant: Put delta is in [-1, 0]
     /// @dev -1 <= Delta_put <= 0
-    function testFuzz_PutDeltaInRange(
-        int256 spot,
-        int256 strike,
-        int256 vol,
-        int256 rate,
-        int256 time
-    ) public pure {
+    function testFuzz_PutDeltaInRange(int256 spot, int256 strike, int256 vol, int256 rate, int256 time) public pure {
         BSMInputs memory inputs = _createBoundedBSMInputs(spot, strike, vol, rate, time);
         BSMOutputs memory outputs = Integrationtest.computeBSM(inputs, false);
 
@@ -238,13 +203,7 @@ contract IntegrationtestFuzzTest is Test {
 
     /// @notice Invariant: Gamma is always non-negative
     /// @dev Gamma >= 0 for all options (can be numerically zero for extreme inputs)
-    function testFuzz_GammaNonNegative(
-        int256 spot,
-        int256 strike,
-        int256 vol,
-        int256 rate,
-        int256 time
-    ) public pure {
+    function testFuzz_GammaNonNegative(int256 spot, int256 strike, int256 vol, int256 rate, int256 time) public pure {
         BSMInputs memory inputs = _createBoundedBSMInputs(spot, strike, vol, rate, time);
         BSMOutputs memory outputs = Integrationtest.computeBSM(inputs, true);
 
@@ -254,13 +213,7 @@ contract IntegrationtestFuzzTest is Test {
 
     /// @notice Invariant: Vega is always non-negative
     /// @dev Vega >= 0 for all options (can be numerically zero for extreme inputs)
-    function testFuzz_VegaNonNegative(
-        int256 spot,
-        int256 strike,
-        int256 vol,
-        int256 rate,
-        int256 time
-    ) public pure {
+    function testFuzz_VegaNonNegative(int256 spot, int256 strike, int256 vol, int256 rate, int256 time) public pure {
         BSMInputs memory inputs = _createBoundedBSMInputs(spot, strike, vol, rate, time);
         BSMOutputs memory outputs = Integrationtest.computeBSM(inputs, true);
 
@@ -333,11 +286,7 @@ contract IntegrationtestFuzzTest is Test {
     // ═══════════════════════════════════════════════════════════════════════════
 
     /// @notice Invariant: Shares are proportional to deposit for non-empty pools
-    function testFuzz_SharesProportional(
-        int256 totalAssetsRaw,
-        int256 totalSharesRaw,
-        int256 depositRaw
-    ) public pure {
+    function testFuzz_SharesProportional(int256 totalAssetsRaw, int256 totalSharesRaw, int256 depositRaw) public pure {
         // Bound to reasonable values
         SD59x18 totalAssets = sd(bound(totalAssetsRaw, 1e18, 1_000_000_000e18));
         SD59x18 totalShares = sd(bound(totalSharesRaw, 1e18, 1_000_000_000e18));
@@ -365,11 +314,7 @@ contract IntegrationtestFuzzTest is Test {
     }
 
     /// @notice Invariant: Pool invariants maintained after mint
-    function testFuzz_PoolStateAfterMint(
-        int256 totalAssetsRaw,
-        int256 premiumRaw,
-        int256 collateralRaw
-    ) public pure {
+    function testFuzz_PoolStateAfterMint(int256 totalAssetsRaw, int256 premiumRaw, int256 collateralRaw) public pure {
         // Ensure pool has enough liquidity
         SD59x18 totalAssets = sd(bound(totalAssetsRaw, 1_000_000e18, 1_000_000_000e18));
         SD59x18 premium = sd(bound(premiumRaw, 1e18, 100_000e18));
@@ -399,9 +344,7 @@ contract IntegrationtestFuzzTest is Test {
         );
 
         // Invariant 2: lockedCollateral = oldLocked + collateral
-        assertEq(
-            SD59x18.unwrap(updated.lockedCollateral), SD59x18.unwrap(collateral), "Collateral must be locked"
-        );
+        assertEq(SD59x18.unwrap(updated.lockedCollateral), SD59x18.unwrap(collateral), "Collateral must be locked");
 
         // Invariant 3: availableLiquidity = totalAssets - lockedCollateral
         assertEq(

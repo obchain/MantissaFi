@@ -59,19 +59,19 @@ contract IntegrationtestWrapper {
         return Integrationtest.calculateMoneyness(spotPrice, strikePrice);
     }
 
-    function calculateDepositShares(
-        SD59x18 depositAmount,
-        SD59x18 totalAssets,
-        SD59x18 totalShares
-    ) external pure returns (SD59x18) {
+    function calculateDepositShares(SD59x18 depositAmount, SD59x18 totalAssets, SD59x18 totalShares)
+        external
+        pure
+        returns (SD59x18)
+    {
         return Integrationtest.calculateDepositShares(depositAmount, totalAssets, totalShares);
     }
 
-    function updatePoolAfterMint(
-        PoolState memory pool,
-        SD59x18 premium,
-        SD59x18 collateralRequired
-    ) external pure returns (PoolState memory) {
+    function updatePoolAfterMint(PoolState memory pool, SD59x18 premium, SD59x18 collateralRequired)
+        external
+        pure
+        returns (PoolState memory)
+    {
         return Integrationtest.updatePoolAfterMint(pool, premium, collateralRequired);
     }
 
@@ -424,7 +424,8 @@ contract IntegrationtestTest is Test {
         uint64 expiry = uint64(block.timestamp + ONE_MONTH);
         OptionSeries memory series = _createCallSeries(expiry);
 
-        SD59x18 premium = Integrationtest.calculateMintPremium(series, ONE_OPTION, SPOT_PRICE, VOLATILITY, block.timestamp);
+        SD59x18 premium =
+            Integrationtest.calculateMintPremium(series, ONE_OPTION, SPOT_PRICE, VOLATILITY, block.timestamp);
 
         assertTrue(premium.gt(ZERO), "Premium should be positive");
     }
@@ -434,7 +435,8 @@ contract IntegrationtestTest is Test {
         uint64 expiry = uint64(block.timestamp + ONE_MONTH);
         OptionSeries memory series = _createCallSeries(expiry);
 
-        SD59x18 premiumOne = Integrationtest.calculateMintPremium(series, ONE_OPTION, SPOT_PRICE, VOLATILITY, block.timestamp);
+        SD59x18 premiumOne =
+            Integrationtest.calculateMintPremium(series, ONE_OPTION, SPOT_PRICE, VOLATILITY, block.timestamp);
         SD59x18 premiumTen =
             Integrationtest.calculateMintPremium(series, sd(10e18), SPOT_PRICE, VOLATILITY, block.timestamp);
 
@@ -764,7 +766,8 @@ contract IntegrationtestTest is Test {
 
     /// @notice Test oracle validation passes for fresh data
     function test_ValidateOraclePrice_FreshData() public view {
-        OraclePrice memory priceData = OraclePrice({price: SPOT_PRICE, timestamp: uint64(block.timestamp), roundId: 1});
+        OraclePrice memory priceData =
+            OraclePrice({ price: SPOT_PRICE, timestamp: uint64(block.timestamp), roundId: 1 });
 
         // Should not revert
         Integrationtest.validateOraclePrice(priceData, block.timestamp);
@@ -785,8 +788,7 @@ contract IntegrationtestTest is Test {
 
     /// @notice Test oracle validation reverts for invalid price
     function test_ValidateOraclePrice_RevertOnInvalidPrice() public {
-        OraclePrice memory priceData =
-            OraclePrice({price: ZERO, timestamp: uint64(block.timestamp), roundId: 1});
+        OraclePrice memory priceData = OraclePrice({ price: ZERO, timestamp: uint64(block.timestamp), roundId: 1 });
 
         vm.expectRevert(abi.encodeWithSelector(InvalidOraclePrice.selector, int256(0)));
         wrapper.validateOraclePrice(priceData, block.timestamp);
@@ -836,8 +838,8 @@ contract IntegrationtestTest is Test {
         uint64 expiry = uint64(block.timestamp + ONE_MONTH);
 
         BatchMintRequest[] memory requests = new BatchMintRequest[](2);
-        requests[0] = BatchMintRequest({seriesId: 0, amount: ONE_OPTION, maxPremium: sd(1000e18)});
-        requests[1] = BatchMintRequest({seriesId: 1, amount: sd(2e18), maxPremium: sd(2000e18)});
+        requests[0] = BatchMintRequest({ seriesId: 0, amount: ONE_OPTION, maxPremium: sd(1000e18) });
+        requests[1] = BatchMintRequest({ seriesId: 1, amount: sd(2e18), maxPremium: sd(2000e18) });
 
         OptionSeries[] memory series = new OptionSeries[](2);
         series[0] = _createCallSeries(expiry);
@@ -899,7 +901,8 @@ contract IntegrationtestTest is Test {
 
         SD59x18 spotPrice = sd(3500e18); // Both ITM
 
-        (SD59x18 totalPayoff, uint256 itmCount) = Integrationtest.calculateBatchExercisePayoff(positions, series, spotPrice);
+        (SD59x18 totalPayoff, uint256 itmCount) =
+            Integrationtest.calculateBatchExercisePayoff(positions, series, spotPrice);
 
         // Both should be ITM with 500 payoff each
         assertEq(itmCount, 2, "Both options should be ITM");

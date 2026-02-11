@@ -8,6 +8,8 @@
 # - Real production code (no placeholders)
 # - Comprehensive tests (unit + fuzz)
 # - Proper NatSpec documentation
+#
+# KEY: We run Claude CLI WITHOUT --print so it actually executes tools
 # =============================================================================
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -26,13 +28,13 @@ generate_code() {
         contract_name=$(echo "$issue_title" | sed 's/Implement //' | sed 's/ —.*$//' | sed 's/\.sol$//' | tr -cd 'A-Za-z0-9')
     fi
 
-    local filename=$(echo "$contract_name" | tr '[:upper:]' '[:lower:]')
+    # Determine file paths based on contract type
     local impl_file="src/libraries/${contract_name}.sol"
     local test_file="test/unit/${contract_name}.t.sol"
     local fuzz_file="test/fuzz/${contract_name}.fuzz.t.sol"
 
     # Check if it's a core contract vs library
-    if echo "$issue_title" | grep -qiE "Vault|Pool|Token|Settlement|Router|Lens|Controller|Oracle"; then
+    if echo "$issue_title" | grep -qiE "Vault|Pool|Token|Settlement|Router|Lens|Controller|Oracle|Adapter"; then
         impl_file="src/core/${contract_name}.sol"
     fi
 
@@ -50,7 +52,7 @@ generate_code() {
     fi
 
     # Create the prompt for senior developer workflow
-    local prompt="You are a senior Solidity developer implementing a feature for MantissaFi (DeFi options protocol).
+    local prompt="You are implementing a feature for MantissaFi (DeFi options protocol on Solidity).
 
 ## Issue #${issue_num}: ${issue_title}
 
@@ -58,93 +60,69 @@ ${issue_body}
 
 ## Your Task
 
-Implement this feature following these steps with MULTIPLE COMMITS like a senior developer:
+Implement this feature with MULTIPLE COMMITS like a senior developer would:
 
-### Step 1: Create Core Implementation
-- Create ${impl_file} with the main contract/library
-- Use Solidity ^0.8.24 and PRB Math SD59x18 for fixed-point
-- Add complete NatSpec documentation (@notice, @dev, @param, @return)
-- Use custom errors (not require strings)
-- NO TODOs or placeholders - implement everything fully
+### Commit 1: Core Implementation
+Create ${impl_file} with:
+- Solidity ^0.8.24
+- PRB Math SD59x18 for fixed-point math
+- Complete NatSpec documentation
+- Custom errors (not require strings)
+- NO TODOs or placeholders - implement EVERYTHING
 
-After creating the implementation file, run:
-\`\`\`bash
-forge build
-git add ${impl_file}
-git commit -S -m \"feat(${contract_name}): add core implementation
+After creating the file, run \`forge build\` to verify, then commit:
+\`git add ${impl_file} && git commit -S -m \"feat(${contract_name}): add core implementation\"\`
 
-Implement main functionality for ${contract_name}.
-Part of #${issue_num}\"
-\`\`\`
-
-### Step 2: Create Unit Tests
-- Create ${test_file} with comprehensive unit tests
-- Test all functions with various scenarios (normal, edge cases, error conditions)
-- Use descriptive test names (test_functionName_scenario)
-- Aim for 15-30 unit tests covering all code paths
-
-After creating unit tests, run:
-\`\`\`bash
-forge test --match-contract ${contract_name}Test
-git add ${test_file}
-git commit -S -m \"test(${contract_name}): add unit tests
-
-Add comprehensive unit tests covering:
-- Normal operation scenarios
+### Commit 2: Unit Tests
+Create ${test_file} with 15-30 unit tests covering:
+- All public/external functions
 - Edge cases and boundary conditions
-- Error handling and reverts
+- Error conditions (reverts)
 
-Part of #${issue_num}\"
-\`\`\`
+Run \`forge test --match-contract ${contract_name}Test\` then commit:
+\`git add ${test_file} && git commit -S -m \"test(${contract_name}): add unit tests\"\`
 
-### Step 3: Create Fuzz Tests
-- Create ${fuzz_file} with fuzz tests for invariants
-- Test mathematical properties that should always hold
-- Use bound() to constrain inputs to valid ranges
-- Aim for 5-15 fuzz tests
+### Commit 3: Fuzz Tests
+Create ${fuzz_file} with 5-15 fuzz tests for invariants.
 
-After creating fuzz tests, run:
-\`\`\`bash
-forge test --match-contract ${contract_name}FuzzTest
-git add ${fuzz_file}
-git commit -S -m \"test(${contract_name}): add fuzz tests
+Run \`forge test --match-contract ${contract_name}FuzzTest\` then commit:
+\`git add ${fuzz_file} && git commit -S -m \"test(${contract_name}): add fuzz tests\"\`
 
-Add fuzz tests verifying mathematical invariants.
-Part of #${issue_num}\"
-\`\`\`
+## Code Style Reference
+Study these existing files for style:
+- src/libraries/Constants.sol
+- src/libraries/CumulativeNormal.sol
+- src/libraries/OptionMath.sol
 
-### Step 4: Final Verification
-Run all tests to verify everything works:
-\`\`\`bash
-forge test --match-path \"test/**/${contract_name}*\"
-\`\`\`
+Use: \`import { SD59x18, sd, ZERO } from \"@prb/math/SD59x18.sol\";\`
 
-## Important Guidelines
+## IMPORTANT
+1. Write REAL, COMPLETE code - no placeholders
+2. Each commit must compile and tests must pass
+3. Make the commits after each step
 
-1. Study existing code style in src/libraries/Constants.sol and src/libraries/CumulativeNormal.sol
-2. Use SD59x18 from @prb/math for all fixed-point math
-3. Follow the same import patterns: \`import { SD59x18, sd, ZERO } from \"@prb/math/SD59x18.sol\";\`
-4. Make each commit independently buildable
-5. Write REAL production code - no placeholders, no TODOs
-6. All tests must pass before each commit
+Start now."
 
-Start implementing now. Create the files and make the commits."
+    echo "========================================" >&2
+    echo "Running Claude CLI for ${contract_name}" >&2
+    echo "This will create files and make commits" >&2
+    echo "========================================" >&2
 
-    echo "Running Claude CLI for ${contract_name} implementation..." >&2
-    echo "This will create multiple commits as a senior developer would..." >&2
-
-    # Run Claude CLI with the prompt
-    # Use --dangerously-skip-permissions to allow file writes and git commits
+    # Run Claude CLI WITHOUT --print so it actually executes tools
+    # Use --dangerously-skip-permissions to allow writes and bash without prompts
     echo "$prompt" | $claude_cmd \
-        --print \
         --dangerously-skip-permissions \
-        2>&1 | tee -a "$LOG_FILE" >&2
+        2>&1 | tee -a "$LOG_FILE"
 
     local claude_exit=$?
 
-    # Check if files were created
+    # Verify files were created
     if [[ -f "$PROJECT_ROOT/$impl_file" ]]; then
         echo "SUCCESS: Implementation created at $impl_file" >&2
+
+        # Count commits made
+        local commit_count=$(git rev-list --count HEAD ^origin/main 2>/dev/null || echo "0")
+        echo "Commits created: $commit_count" >&2
 
         # Return the paths
         echo "$impl_file|$test_file|$fuzz_file"

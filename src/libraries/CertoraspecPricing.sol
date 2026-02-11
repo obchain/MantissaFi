@@ -22,52 +22,52 @@ import { CumulativeNormal } from "./CumulativeNormal.sol";
 // ═══════════════════════════════════════════════════════════════════════════════
 
 /// @notice Thrown when spot price is not strictly positive
-error Certoraspec__InvalidSpotPrice(SD59x18 spot);
+error CertoraspecPricing__InvalidSpotPrice(SD59x18 spot);
 
 /// @notice Thrown when strike price is not strictly positive
-error Certoraspec__InvalidStrikePrice(SD59x18 strike);
+error CertoraspecPricing__InvalidStrikePrice(SD59x18 strike);
 
 /// @notice Thrown when volatility is not strictly positive
-error Certoraspec__InvalidVolatility(SD59x18 volatility);
+error CertoraspecPricing__InvalidVolatility(SD59x18 volatility);
 
 /// @notice Thrown when time to expiry is not strictly positive
-error Certoraspec__InvalidTimeToExpiry(SD59x18 timeToExpiry);
+error CertoraspecPricing__InvalidTimeToExpiry(SD59x18 timeToExpiry);
 
 /// @notice Thrown when the bump size epsilon is not strictly positive
-error Certoraspec__InvalidEpsilon(SD59x18 epsilon);
+error CertoraspecPricing__InvalidEpsilon(SD59x18 epsilon);
 
 /// @notice Thrown when risk-free rate is negative
-error Certoraspec__InvalidRiskFreeRate(SD59x18 riskFreeRate);
+error CertoraspecPricing__InvalidRiskFreeRate(SD59x18 riskFreeRate);
 
 /// @notice Thrown when the call-delta-positive invariant is violated
 /// @param spot The spot price used
 /// @param delta The computed call delta (expected > 0)
-error Certoraspec__CallDeltaNotPositive(SD59x18 spot, SD59x18 delta);
+error CertoraspecPricing__CallDeltaNotPositive(SD59x18 spot, SD59x18 delta);
 
 /// @notice Thrown when the put-delta-negative invariant is violated
 /// @param spot The spot price used
 /// @param delta The computed put delta (expected < 0)
-error Certoraspec__PutDeltaNotNegative(SD59x18 spot, SD59x18 delta);
+error CertoraspecPricing__PutDeltaNotNegative(SD59x18 spot, SD59x18 delta);
 
 /// @notice Thrown when the vega-positive invariant is violated
 /// @param volatility The volatility used
 /// @param vega The computed vega (expected > 0)
-error Certoraspec__VegaNotPositive(SD59x18 volatility, SD59x18 vega);
+error CertoraspecPricing__VegaNotPositive(SD59x18 volatility, SD59x18 vega);
 
 /// @notice Thrown when the finite-difference monotonicity check fails for calls
 /// @param priceLow Price at lower spot
 /// @param priceHigh Price at higher spot
-error Certoraspec__CallNotMonotonicInSpot(SD59x18 priceLow, SD59x18 priceHigh);
+error CertoraspecPricing__CallNotMonotonicInSpot(SD59x18 priceLow, SD59x18 priceHigh);
 
 /// @notice Thrown when the finite-difference monotonicity check fails for puts
 /// @param priceLow Price at lower spot
 /// @param priceHigh Price at higher spot
-error Certoraspec__PutNotMonotonicInSpot(SD59x18 priceLow, SD59x18 priceHigh);
+error CertoraspecPricing__PutNotMonotonicInSpot(SD59x18 priceLow, SD59x18 priceHigh);
 
 /// @notice Thrown when the finite-difference vega check fails
 /// @param priceLowVol Price at lower volatility
 /// @param priceHighVol Price at higher volatility
-error Certoraspec__PriceNotMonotonicInVol(SD59x18 priceLowVol, SD59x18 priceHighVol);
+error CertoraspecPricing__PriceNotMonotonicInVol(SD59x18 priceLowVol, SD59x18 priceHighVol);
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // STRUCTS
@@ -99,7 +99,7 @@ struct MonotonicityResult {
     SD59x18 greekValue;
 }
 
-library Certoraspec {
+library CertoraspecPricing {
     // ═══════════════════════════════════════════════════════════════════════════
     // CONSTANTS
     // ═══════════════════════════════════════════════════════════════════════════
@@ -281,7 +281,7 @@ library Certoraspec {
     function assertCallMonotonicInSpot(PricingParams memory p, SD59x18 epsilon) internal pure {
         MonotonicityResult memory res = verifyCallMonotonicInSpot(p, epsilon);
         if (!res.holds) {
-            revert Certoraspec__CallNotMonotonicInSpot(res.lowerValue, res.upperValue);
+            revert CertoraspecPricing__CallNotMonotonicInSpot(res.lowerValue, res.upperValue);
         }
     }
 
@@ -332,7 +332,7 @@ library Certoraspec {
     function assertPutMonotonicInSpot(PricingParams memory p, SD59x18 epsilon) internal pure {
         MonotonicityResult memory res = verifyPutMonotonicInSpot(p, epsilon);
         if (!res.holds) {
-            revert Certoraspec__PutNotMonotonicInSpot(res.lowerValue, res.upperValue);
+            revert CertoraspecPricing__PutNotMonotonicInSpot(res.lowerValue, res.upperValue);
         }
     }
 
@@ -406,7 +406,7 @@ library Certoraspec {
     function assertCallMonotonicInVol(PricingParams memory p, SD59x18 epsilon) internal pure {
         MonotonicityResult memory res = verifyCallMonotonicInVol(p, epsilon);
         if (!res.holds) {
-            revert Certoraspec__PriceNotMonotonicInVol(res.lowerValue, res.upperValue);
+            revert CertoraspecPricing__PriceNotMonotonicInVol(res.lowerValue, res.upperValue);
         }
     }
 
@@ -416,7 +416,7 @@ library Certoraspec {
     function assertPutMonotonicInVol(PricingParams memory p, SD59x18 epsilon) internal pure {
         MonotonicityResult memory res = verifyPutMonotonicInVol(p, epsilon);
         if (!res.holds) {
-            revert Certoraspec__PriceNotMonotonicInVol(res.lowerValue, res.upperValue);
+            revert CertoraspecPricing__PriceNotMonotonicInVol(res.lowerValue, res.upperValue);
         }
     }
 
@@ -544,26 +544,26 @@ library Certoraspec {
     /// @notice Internal parameter validation
     function _validateParams(PricingParams memory p) private pure {
         if (p.spot.lte(ZERO)) {
-            revert Certoraspec__InvalidSpotPrice(p.spot);
+            revert CertoraspecPricing__InvalidSpotPrice(p.spot);
         }
         if (p.strike.lte(ZERO)) {
-            revert Certoraspec__InvalidStrikePrice(p.strike);
+            revert CertoraspecPricing__InvalidStrikePrice(p.strike);
         }
         if (p.volatility.lte(ZERO)) {
-            revert Certoraspec__InvalidVolatility(p.volatility);
+            revert CertoraspecPricing__InvalidVolatility(p.volatility);
         }
         if (p.timeToExpiry.lte(ZERO)) {
-            revert Certoraspec__InvalidTimeToExpiry(p.timeToExpiry);
+            revert CertoraspecPricing__InvalidTimeToExpiry(p.timeToExpiry);
         }
         if (p.riskFreeRate.lt(ZERO)) {
-            revert Certoraspec__InvalidRiskFreeRate(p.riskFreeRate);
+            revert CertoraspecPricing__InvalidRiskFreeRate(p.riskFreeRate);
         }
     }
 
     /// @notice Internal epsilon validation
     function _validateEpsilon(SD59x18 epsilon) private pure {
         if (epsilon.lte(ZERO)) {
-            revert Certoraspec__InvalidEpsilon(epsilon);
+            revert CertoraspecPricing__InvalidEpsilon(epsilon);
         }
     }
 

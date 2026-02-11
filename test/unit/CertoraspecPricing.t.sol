@@ -3,54 +3,54 @@ pragma solidity ^0.8.24;
 
 import "forge-std/Test.sol";
 import { SD59x18, sd, ZERO } from "@prb/math/SD59x18.sol";
-import { Certoraspec } from "../../src/libraries/Certoraspec.sol";
-import { PricingParams, MonotonicityResult } from "../../src/libraries/Certoraspec.sol";
+import { CertoraspecPricing } from "../../src/libraries/CertoraspecPricing.sol";
+import { PricingParams, MonotonicityResult } from "../../src/libraries/CertoraspecPricing.sol";
 
 /// @title CertoraspecHarness
 /// @notice Harness contract to expose internal library functions and test reverts via external calls
 contract CertoraspecHarness {
     function computeD1(PricingParams memory p) external pure returns (SD59x18) {
-        return Certoraspec.computeD1(p);
+        return CertoraspecPricing.computeD1(p);
     }
 
     function computeD2(PricingParams memory p, SD59x18 d1) external pure returns (SD59x18) {
-        return Certoraspec.computeD2(p, d1);
+        return CertoraspecPricing.computeD2(p, d1);
     }
 
     function priceCall(PricingParams memory p) external pure returns (SD59x18) {
-        return Certoraspec.priceCall(p);
+        return CertoraspecPricing.priceCall(p);
     }
 
     function pricePut(PricingParams memory p) external pure returns (SD59x18) {
-        return Certoraspec.pricePut(p);
+        return CertoraspecPricing.pricePut(p);
     }
 
     function callDelta(PricingParams memory p) external pure returns (SD59x18) {
-        return Certoraspec.callDelta(p);
+        return CertoraspecPricing.callDelta(p);
     }
 
     function putDelta(PricingParams memory p) external pure returns (SD59x18) {
-        return Certoraspec.putDelta(p);
+        return CertoraspecPricing.putDelta(p);
     }
 
     function vega(PricingParams memory p) external pure returns (SD59x18) {
-        return Certoraspec.vega(p);
+        return CertoraspecPricing.vega(p);
     }
 
     function gamma(PricingParams memory p) external pure returns (SD59x18) {
-        return Certoraspec.gamma(p);
+        return CertoraspecPricing.gamma(p);
     }
 
     function verifyCallDeltaPositive(PricingParams memory p) external pure returns (bool) {
-        return Certoraspec.verifyCallDeltaPositive(p);
+        return CertoraspecPricing.verifyCallDeltaPositive(p);
     }
 
     function verifyPutDeltaNegative(PricingParams memory p) external pure returns (bool) {
-        return Certoraspec.verifyPutDeltaNegative(p);
+        return CertoraspecPricing.verifyPutDeltaNegative(p);
     }
 
     function verifyVegaPositive(PricingParams memory p) external pure returns (bool) {
-        return Certoraspec.verifyVegaPositive(p);
+        return CertoraspecPricing.verifyVegaPositive(p);
     }
 
     function verifyCallMonotonicInSpot(PricingParams memory p, SD59x18 epsilon)
@@ -58,7 +58,7 @@ contract CertoraspecHarness {
         pure
         returns (MonotonicityResult memory)
     {
-        return Certoraspec.verifyCallMonotonicInSpot(p, epsilon);
+        return CertoraspecPricing.verifyCallMonotonicInSpot(p, epsilon);
     }
 
     function verifyPutMonotonicInSpot(PricingParams memory p, SD59x18 epsilon)
@@ -66,7 +66,7 @@ contract CertoraspecHarness {
         pure
         returns (MonotonicityResult memory)
     {
-        return Certoraspec.verifyPutMonotonicInSpot(p, epsilon);
+        return CertoraspecPricing.verifyPutMonotonicInSpot(p, epsilon);
     }
 
     function verifyCallMonotonicInVol(PricingParams memory p, SD59x18 epsilon)
@@ -74,7 +74,7 @@ contract CertoraspecHarness {
         pure
         returns (MonotonicityResult memory)
     {
-        return Certoraspec.verifyCallMonotonicInVol(p, epsilon);
+        return CertoraspecPricing.verifyCallMonotonicInVol(p, epsilon);
     }
 
     function verifyPutMonotonicInVol(PricingParams memory p, SD59x18 epsilon)
@@ -82,51 +82,51 @@ contract CertoraspecHarness {
         pure
         returns (MonotonicityResult memory)
     {
-        return Certoraspec.verifyPutMonotonicInVol(p, epsilon);
+        return CertoraspecPricing.verifyPutMonotonicInVol(p, epsilon);
     }
 
     function assertCallMonotonicInSpot(PricingParams memory p, SD59x18 epsilon) external pure {
-        Certoraspec.assertCallMonotonicInSpot(p, epsilon);
+        CertoraspecPricing.assertCallMonotonicInSpot(p, epsilon);
     }
 
     function assertPutMonotonicInSpot(PricingParams memory p, SD59x18 epsilon) external pure {
-        Certoraspec.assertPutMonotonicInSpot(p, epsilon);
+        CertoraspecPricing.assertPutMonotonicInSpot(p, epsilon);
     }
 
     function assertCallMonotonicInVol(PricingParams memory p, SD59x18 epsilon) external pure {
-        Certoraspec.assertCallMonotonicInVol(p, epsilon);
+        CertoraspecPricing.assertCallMonotonicInVol(p, epsilon);
     }
 
     function assertPutMonotonicInVol(PricingParams memory p, SD59x18 epsilon) external pure {
-        Certoraspec.assertPutMonotonicInVol(p, epsilon);
+        CertoraspecPricing.assertPutMonotonicInVol(p, epsilon);
     }
 
     function verifyAllInvariants(PricingParams memory p, SD59x18 epsilon) external pure returns (bool, bool, bool) {
-        return Certoraspec.verifyAllInvariants(p, epsilon);
+        return CertoraspecPricing.verifyAllInvariants(p, epsilon);
     }
 
     function assertAllInvariants(PricingParams memory p, SD59x18 epsilon) external pure {
-        Certoraspec.assertAllInvariants(p, epsilon);
+        CertoraspecPricing.assertAllInvariants(p, epsilon);
     }
 
     function verifyPutCallParity(PricingParams memory p, SD59x18 tolerance) external pure returns (bool, SD59x18) {
-        return Certoraspec.verifyPutCallParity(p, tolerance);
+        return CertoraspecPricing.verifyPutCallParity(p, tolerance);
     }
 
     function verifyCallDeltaBounds(PricingParams memory p) external pure returns (bool, SD59x18) {
-        return Certoraspec.verifyCallDeltaBounds(p);
+        return CertoraspecPricing.verifyCallDeltaBounds(p);
     }
 
     function verifyPutDeltaBounds(PricingParams memory p) external pure returns (bool, SD59x18) {
-        return Certoraspec.verifyPutDeltaBounds(p);
+        return CertoraspecPricing.verifyPutDeltaBounds(p);
     }
 
     function verifyGammaPositive(PricingParams memory p) external pure returns (bool, SD59x18) {
-        return Certoraspec.verifyGammaPositive(p);
+        return CertoraspecPricing.verifyGammaPositive(p);
     }
 
     function validateParams(PricingParams memory p) external pure {
-        Certoraspec.validateParams(p);
+        CertoraspecPricing.validateParams(p);
     }
 }
 
@@ -235,7 +235,7 @@ contract CertoraspecTest is Test {
             riskFreeRate: ZERO,
             timeToExpiry: sd(TIME_1Y)
         });
-        Certoraspec.validateParams(p);
+        CertoraspecPricing.validateParams(p);
     }
 
     // ═══════════════════════════════════════════════════════════════════════════
@@ -250,7 +250,7 @@ contract CertoraspecTest is Test {
             riskFreeRate: sd(RATE_5),
             timeToExpiry: sd(TIME_1Y)
         });
-        SD59x18 price = Certoraspec.priceCall(p);
+        SD59x18 price = CertoraspecPricing.priceCall(p);
         assertTrue(price.gt(ZERO), "ATM call price should be positive");
     }
 
@@ -262,7 +262,7 @@ contract CertoraspecTest is Test {
             riskFreeRate: sd(RATE_5),
             timeToExpiry: sd(TIME_1Y)
         });
-        SD59x18 price = Certoraspec.pricePut(p);
+        SD59x18 price = CertoraspecPricing.pricePut(p);
         assertTrue(price.gt(ZERO), "ATM put price should be positive");
     }
 
@@ -274,7 +274,7 @@ contract CertoraspecTest is Test {
             riskFreeRate: ZERO,
             timeToExpiry: sd(TIME_1W)
         });
-        SD59x18 price = Certoraspec.priceCall(p);
+        SD59x18 price = CertoraspecPricing.priceCall(p);
         SD59x18 intrinsic = sd(ETH_SPOT).sub(sd(ETH_STRIKE_DEEP_ITM_CALL));
         // Deep ITM short-dated call should be close to intrinsic
         assertTrue(price.gte(intrinsic), "Deep ITM call should be >= intrinsic");
@@ -292,7 +292,7 @@ contract CertoraspecTest is Test {
             riskFreeRate: sd(RATE_5),
             timeToExpiry: sd(TIME_1Y)
         });
-        assertTrue(Certoraspec.verifyCallDeltaPositive(p), "ATM call delta should be positive");
+        assertTrue(CertoraspecPricing.verifyCallDeltaPositive(p), "ATM call delta should be positive");
     }
 
     function test_verifyCallDeltaPositive_OTM() public pure {
@@ -303,7 +303,7 @@ contract CertoraspecTest is Test {
             riskFreeRate: sd(RATE_5),
             timeToExpiry: sd(TIME_6M)
         });
-        assertTrue(Certoraspec.verifyCallDeltaPositive(p), "OTM call delta should be positive");
+        assertTrue(CertoraspecPricing.verifyCallDeltaPositive(p), "OTM call delta should be positive");
     }
 
     function test_verifyCallMonotonicInSpot_ATM() public pure {
@@ -314,7 +314,7 @@ contract CertoraspecTest is Test {
             riskFreeRate: sd(RATE_5),
             timeToExpiry: sd(TIME_1Y)
         });
-        MonotonicityResult memory res = Certoraspec.verifyCallMonotonicInSpot(p, sd(EPSILON_1PCT));
+        MonotonicityResult memory res = CertoraspecPricing.verifyCallMonotonicInSpot(p, sd(EPSILON_1PCT));
         assertTrue(res.holds, "Call should be monotonic in spot");
         assertTrue(res.upperValue.gt(res.lowerValue), "Higher spot should give higher call price");
         assertTrue(res.greekValue.gt(ZERO), "Call delta should be positive");
@@ -328,7 +328,7 @@ contract CertoraspecTest is Test {
             riskFreeRate: sd(RATE_5),
             timeToExpiry: sd(TIME_6M)
         });
-        MonotonicityResult memory res = Certoraspec.verifyCallMonotonicInSpot(p, sd(EPSILON_1PCT));
+        MonotonicityResult memory res = CertoraspecPricing.verifyCallMonotonicInSpot(p, sd(EPSILON_1PCT));
         assertTrue(res.holds, "OTM call should be monotonic in spot");
     }
 
@@ -340,7 +340,7 @@ contract CertoraspecTest is Test {
             riskFreeRate: sd(RATE_5),
             timeToExpiry: sd(TIME_1Y)
         });
-        Certoraspec.assertCallMonotonicInSpot(p, sd(EPSILON_1PCT));
+        CertoraspecPricing.assertCallMonotonicInSpot(p, sd(EPSILON_1PCT));
     }
 
     // ═══════════════════════════════════════════════════════════════════════════
@@ -355,7 +355,7 @@ contract CertoraspecTest is Test {
             riskFreeRate: sd(RATE_5),
             timeToExpiry: sd(TIME_1Y)
         });
-        assertTrue(Certoraspec.verifyPutDeltaNegative(p), "ATM put delta should be negative");
+        assertTrue(CertoraspecPricing.verifyPutDeltaNegative(p), "ATM put delta should be negative");
     }
 
     function test_verifyPutDeltaNegative_OTMPut() public pure {
@@ -366,7 +366,7 @@ contract CertoraspecTest is Test {
             riskFreeRate: sd(RATE_5),
             timeToExpiry: sd(TIME_1M)
         });
-        assertTrue(Certoraspec.verifyPutDeltaNegative(p), "OTM put delta should be negative");
+        assertTrue(CertoraspecPricing.verifyPutDeltaNegative(p), "OTM put delta should be negative");
     }
 
     function test_verifyPutMonotonicInSpot_ATM() public pure {
@@ -377,7 +377,7 @@ contract CertoraspecTest is Test {
             riskFreeRate: sd(RATE_5),
             timeToExpiry: sd(TIME_1Y)
         });
-        MonotonicityResult memory res = Certoraspec.verifyPutMonotonicInSpot(p, sd(EPSILON_1PCT));
+        MonotonicityResult memory res = CertoraspecPricing.verifyPutMonotonicInSpot(p, sd(EPSILON_1PCT));
         assertTrue(res.holds, "Put should be anti-monotonic in spot");
         assertTrue(res.upperValue.lte(res.lowerValue), "Higher spot should give lower put price");
         assertTrue(res.greekValue.lt(ZERO), "Put delta should be negative");
@@ -391,7 +391,7 @@ contract CertoraspecTest is Test {
             riskFreeRate: sd(RATE_5),
             timeToExpiry: sd(TIME_6M)
         });
-        MonotonicityResult memory res = Certoraspec.verifyPutMonotonicInSpot(p, sd(EPSILON_1PCT));
+        MonotonicityResult memory res = CertoraspecPricing.verifyPutMonotonicInSpot(p, sd(EPSILON_1PCT));
         assertTrue(res.holds, "OTM put should be anti-monotonic in spot");
     }
 
@@ -403,7 +403,7 @@ contract CertoraspecTest is Test {
             riskFreeRate: sd(RATE_5),
             timeToExpiry: sd(TIME_1Y)
         });
-        Certoraspec.assertPutMonotonicInSpot(p, sd(EPSILON_1PCT));
+        CertoraspecPricing.assertPutMonotonicInSpot(p, sd(EPSILON_1PCT));
     }
 
     // ═══════════════════════════════════════════════════════════════════════════
@@ -418,7 +418,7 @@ contract CertoraspecTest is Test {
             riskFreeRate: sd(RATE_5),
             timeToExpiry: sd(TIME_1Y)
         });
-        assertTrue(Certoraspec.verifyVegaPositive(p), "ATM vega should be positive");
+        assertTrue(CertoraspecPricing.verifyVegaPositive(p), "ATM vega should be positive");
     }
 
     function test_verifyVegaPositive_OTM() public pure {
@@ -429,7 +429,7 @@ contract CertoraspecTest is Test {
             riskFreeRate: sd(RATE_5),
             timeToExpiry: sd(TIME_1M)
         });
-        assertTrue(Certoraspec.verifyVegaPositive(p), "OTM vega should be positive");
+        assertTrue(CertoraspecPricing.verifyVegaPositive(p), "OTM vega should be positive");
     }
 
     function test_verifyCallMonotonicInVol_ATM() public pure {
@@ -440,7 +440,7 @@ contract CertoraspecTest is Test {
             riskFreeRate: sd(RATE_5),
             timeToExpiry: sd(TIME_1Y)
         });
-        MonotonicityResult memory res = Certoraspec.verifyCallMonotonicInVol(p, sd(EPSILON_1PCT));
+        MonotonicityResult memory res = CertoraspecPricing.verifyCallMonotonicInVol(p, sd(EPSILON_1PCT));
         assertTrue(res.holds, "Call should be monotonic in vol");
         assertTrue(res.upperValue.gt(res.lowerValue), "Higher vol should give higher call price");
     }
@@ -453,7 +453,7 @@ contract CertoraspecTest is Test {
             riskFreeRate: sd(RATE_5),
             timeToExpiry: sd(TIME_1Y)
         });
-        MonotonicityResult memory res = Certoraspec.verifyPutMonotonicInVol(p, sd(EPSILON_1PCT));
+        MonotonicityResult memory res = CertoraspecPricing.verifyPutMonotonicInVol(p, sd(EPSILON_1PCT));
         assertTrue(res.holds, "Put should be monotonic in vol");
         assertTrue(res.upperValue.gt(res.lowerValue), "Higher vol should give higher put price");
     }
@@ -466,7 +466,7 @@ contract CertoraspecTest is Test {
             riskFreeRate: sd(RATE_5),
             timeToExpiry: sd(TIME_1Y)
         });
-        Certoraspec.assertCallMonotonicInVol(p, sd(EPSILON_1PCT));
+        CertoraspecPricing.assertCallMonotonicInVol(p, sd(EPSILON_1PCT));
     }
 
     function test_assertPutMonotonicInVol_DoesNotRevert() public pure {
@@ -477,7 +477,7 @@ contract CertoraspecTest is Test {
             riskFreeRate: sd(RATE_5),
             timeToExpiry: sd(TIME_1Y)
         });
-        Certoraspec.assertPutMonotonicInVol(p, sd(EPSILON_1PCT));
+        CertoraspecPricing.assertPutMonotonicInVol(p, sd(EPSILON_1PCT));
     }
 
     // ═══════════════════════════════════════════════════════════════════════════
@@ -492,7 +492,7 @@ contract CertoraspecTest is Test {
             riskFreeRate: sd(RATE_5),
             timeToExpiry: sd(TIME_1Y)
         });
-        (bool callOk, bool putOk, bool vegaOk) = Certoraspec.verifyAllInvariants(p, sd(EPSILON_1PCT));
+        (bool callOk, bool putOk, bool vegaOk) = CertoraspecPricing.verifyAllInvariants(p, sd(EPSILON_1PCT));
         assertTrue(callOk, "Call spot monotonicity should hold");
         assertTrue(putOk, "Put spot monotonicity should hold");
         assertTrue(vegaOk, "Vega monotonicity should hold");
@@ -506,7 +506,7 @@ contract CertoraspecTest is Test {
             riskFreeRate: sd(RATE_5),
             timeToExpiry: sd(TIME_6M)
         });
-        Certoraspec.assertAllInvariants(p, sd(EPSILON_1PCT));
+        CertoraspecPricing.assertAllInvariants(p, sd(EPSILON_1PCT));
     }
 
     function test_assertAllInvariants_DoesNotRevert_ZeroRate() public pure {
@@ -517,7 +517,7 @@ contract CertoraspecTest is Test {
             riskFreeRate: ZERO,
             timeToExpiry: sd(TIME_1Y)
         });
-        Certoraspec.assertAllInvariants(p, sd(EPSILON_1PCT));
+        CertoraspecPricing.assertAllInvariants(p, sd(EPSILON_1PCT));
     }
 
     function test_assertAllInvariants_DoesNotRevert_ShortDated() public pure {
@@ -528,7 +528,7 @@ contract CertoraspecTest is Test {
             riskFreeRate: sd(RATE_5),
             timeToExpiry: sd(TIME_1W)
         });
-        Certoraspec.assertAllInvariants(p, sd(EPSILON_SMALL));
+        CertoraspecPricing.assertAllInvariants(p, sd(EPSILON_SMALL));
     }
 
     // ═══════════════════════════════════════════════════════════════════════════
@@ -544,7 +544,7 @@ contract CertoraspecTest is Test {
             timeToExpiry: sd(TIME_1Y)
         });
         // Tolerance of 1e15 (0.001 in SD59x18) for numerical imprecision
-        (bool holds, SD59x18 deviation) = Certoraspec.verifyPutCallParity(p, sd(1e15));
+        (bool holds, SD59x18 deviation) = CertoraspecPricing.verifyPutCallParity(p, sd(1e15));
         assertTrue(holds, "Put-call parity should hold at ATM");
         assertTrue(deviation.lt(sd(1e15)), "Deviation should be small");
     }
@@ -557,7 +557,7 @@ contract CertoraspecTest is Test {
             riskFreeRate: sd(RATE_5),
             timeToExpiry: sd(TIME_6M)
         });
-        (bool holds,) = Certoraspec.verifyPutCallParity(p, sd(1e15));
+        (bool holds,) = CertoraspecPricing.verifyPutCallParity(p, sd(1e15));
         assertTrue(holds, "Put-call parity should hold OTM");
     }
 
@@ -573,7 +573,7 @@ contract CertoraspecTest is Test {
             riskFreeRate: sd(RATE_5),
             timeToExpiry: sd(TIME_1Y)
         });
-        (bool inBounds, SD59x18 delta) = Certoraspec.verifyCallDeltaBounds(p);
+        (bool inBounds, SD59x18 delta) = CertoraspecPricing.verifyCallDeltaBounds(p);
         assertTrue(inBounds, "Call delta should be in (0, 1)");
         // ATM call delta should be around 0.5-0.6
         assertTrue(delta.gt(sd(400000000000000000)), "ATM call delta should be > 0.4");
@@ -588,7 +588,7 @@ contract CertoraspecTest is Test {
             riskFreeRate: sd(RATE_5),
             timeToExpiry: sd(TIME_1Y)
         });
-        (bool inBounds, SD59x18 delta) = Certoraspec.verifyPutDeltaBounds(p);
+        (bool inBounds, SD59x18 delta) = CertoraspecPricing.verifyPutDeltaBounds(p);
         assertTrue(inBounds, "Put delta should be in (-1, 0)");
         // ATM put delta should be around -0.4 to -0.5
         assertTrue(delta.lt(sd(-300000000000000000)), "ATM put delta should be < -0.3");
@@ -607,7 +607,7 @@ contract CertoraspecTest is Test {
             riskFreeRate: sd(RATE_5),
             timeToExpiry: sd(TIME_1Y)
         });
-        (bool isPositive, SD59x18 gammaVal) = Certoraspec.verifyGammaPositive(p);
+        (bool isPositive, SD59x18 gammaVal) = CertoraspecPricing.verifyGammaPositive(p);
         assertTrue(isPositive, "Gamma should be positive");
         assertTrue(gammaVal.gt(ZERO), "Gamma value should be > 0");
     }
@@ -620,7 +620,7 @@ contract CertoraspecTest is Test {
             riskFreeRate: sd(RATE_5),
             timeToExpiry: sd(TIME_6M)
         });
-        (bool isPositive,) = Certoraspec.verifyGammaPositive(p);
+        (bool isPositive,) = CertoraspecPricing.verifyGammaPositive(p);
         assertTrue(isPositive, "OTM gamma should be positive");
     }
 
@@ -652,7 +652,7 @@ contract CertoraspecTest is Test {
             riskFreeRate: sd(RATE_5),
             timeToExpiry: sd(TIME_1Y)
         });
-        Certoraspec.assertAllInvariants(p, sd(EPSILON_SMALL));
+        CertoraspecPricing.assertAllInvariants(p, sd(EPSILON_SMALL));
     }
 
     function test_assertAllInvariants_HighPrice() public pure {
@@ -663,7 +663,7 @@ contract CertoraspecTest is Test {
             riskFreeRate: sd(RATE_5),
             timeToExpiry: sd(TIME_1Y)
         });
-        Certoraspec.assertAllInvariants(p, sd(100e18));
+        CertoraspecPricing.assertAllInvariants(p, sd(100e18));
     }
 
     // ═══════════════════════════════════════════════════════════════════════════
@@ -678,7 +678,7 @@ contract CertoraspecTest is Test {
             riskFreeRate: ZERO,
             timeToExpiry: sd(TIME_1W)
         });
-        SD59x18 delta = Certoraspec.callDelta(p);
+        SD59x18 delta = CertoraspecPricing.callDelta(p);
         // Deep ITM short-dated call delta should be near 1.0
         assertTrue(delta.gt(sd(950000000000000000)), "Deep ITM call delta should be > 0.95");
     }
@@ -692,7 +692,7 @@ contract CertoraspecTest is Test {
             riskFreeRate: ZERO,
             timeToExpiry: sd(TIME_1W)
         });
-        SD59x18 delta = Certoraspec.putDelta(p);
+        SD59x18 delta = CertoraspecPricing.putDelta(p);
         // Deep ITM short-dated put delta should be near -1.0
         assertTrue(delta.lt(sd(-950000000000000000)), "Deep ITM put delta should be < -0.95");
     }
@@ -714,8 +714,8 @@ contract CertoraspecTest is Test {
             timeToExpiry: sd(TIME_1Y)
         });
 
-        SD59x18 vegaATM = Certoraspec.vega(pATM);
-        SD59x18 vegaOTM = Certoraspec.vega(pOTM);
+        SD59x18 vegaATM = CertoraspecPricing.vega(pATM);
+        SD59x18 vegaOTM = CertoraspecPricing.vega(pOTM);
 
         assertTrue(vegaATM.gt(vegaOTM), "ATM vega should be greater than OTM vega");
     }

@@ -3,8 +3,8 @@ pragma solidity ^0.8.24;
 
 import "forge-std/Test.sol";
 import { SD59x18, sd, ZERO } from "@prb/math/SD59x18.sol";
-import { Certoraspec } from "../../src/libraries/Certoraspec.sol";
-import { PricingParams, MonotonicityResult } from "../../src/libraries/Certoraspec.sol";
+import { CertoraspecPricing } from "../../src/libraries/CertoraspecPricing.sol";
+import { PricingParams, MonotonicityResult } from "../../src/libraries/CertoraspecPricing.sol";
 
 /// @title CertoraspecFuzzTest
 /// @notice Fuzz tests for Certoraspec pricing monotonicity invariants
@@ -73,7 +73,7 @@ contract CertoraspecFuzzTest is Test {
         int256 timeRaw
     ) public pure {
         PricingParams memory p = _boundParams(spotRaw, strikeRaw, volRaw, rateRaw, timeRaw);
-        SD59x18 delta = Certoraspec.callDelta(p);
+        SD59x18 delta = CertoraspecPricing.callDelta(p);
         assertTrue(delta.gte(ZERO), "Call delta must be >= 0");
     }
 
@@ -92,7 +92,7 @@ contract CertoraspecFuzzTest is Test {
         int256 epsUpper = maxEps < MAX_EPSILON ? maxEps : MAX_EPSILON;
         int256 eps = bound(epsilonRaw, MIN_EPSILON, epsUpper);
 
-        MonotonicityResult memory res = Certoraspec.verifyCallMonotonicInSpot(p, sd(eps));
+        MonotonicityResult memory res = CertoraspecPricing.verifyCallMonotonicInSpot(p, sd(eps));
         assertTrue(res.holds, "Call must be monotonic in spot: C(S+eps) >= C(S)");
     }
 
@@ -109,7 +109,7 @@ contract CertoraspecFuzzTest is Test {
         int256 timeRaw
     ) public pure {
         PricingParams memory p = _boundParams(spotRaw, strikeRaw, volRaw, rateRaw, timeRaw);
-        SD59x18 delta = Certoraspec.putDelta(p);
+        SD59x18 delta = CertoraspecPricing.putDelta(p);
         assertTrue(delta.lte(ZERO), "Put delta must be <= 0");
     }
 
@@ -129,7 +129,7 @@ contract CertoraspecFuzzTest is Test {
         int256 epsUpper = maxEps < MAX_EPSILON ? maxEps : MAX_EPSILON;
         int256 eps = bound(epsilonRaw, MIN_EPSILON, epsUpper);
 
-        MonotonicityResult memory res = Certoraspec.verifyPutMonotonicInSpot(p, sd(eps));
+        MonotonicityResult memory res = CertoraspecPricing.verifyPutMonotonicInSpot(p, sd(eps));
         assertTrue(res.holds, "Put must be anti-monotonic in spot: P(S+eps) <= P(S)");
     }
 
@@ -146,7 +146,7 @@ contract CertoraspecFuzzTest is Test {
         int256 timeRaw
     ) public pure {
         PricingParams memory p = _boundParams(spotRaw, strikeRaw, volRaw, rateRaw, timeRaw);
-        SD59x18 v = Certoraspec.vega(p);
+        SD59x18 v = CertoraspecPricing.vega(p);
         assertTrue(v.gte(ZERO), "Vega must be >= 0");
     }
 
@@ -165,7 +165,7 @@ contract CertoraspecFuzzTest is Test {
         int256 epsUpper = maxEps < MAX_EPSILON ? maxEps : MAX_EPSILON;
         int256 eps = bound(epsilonRaw, MIN_EPSILON, epsUpper);
 
-        MonotonicityResult memory res = Certoraspec.verifyCallMonotonicInVol(p, sd(eps));
+        MonotonicityResult memory res = CertoraspecPricing.verifyCallMonotonicInVol(p, sd(eps));
         assertTrue(res.holds, "Call must be monotonic in vol: C(sigma+eps) >= C(sigma)");
     }
 
@@ -184,7 +184,7 @@ contract CertoraspecFuzzTest is Test {
         int256 epsUpper = maxEps < MAX_EPSILON ? maxEps : MAX_EPSILON;
         int256 eps = bound(epsilonRaw, MIN_EPSILON, epsUpper);
 
-        MonotonicityResult memory res = Certoraspec.verifyPutMonotonicInVol(p, sd(eps));
+        MonotonicityResult memory res = CertoraspecPricing.verifyPutMonotonicInVol(p, sd(eps));
         assertTrue(res.holds, "Put must be monotonic in vol: P(sigma+eps) >= P(sigma)");
     }
 
@@ -210,7 +210,7 @@ contract CertoraspecFuzzTest is Test {
         int256 epsUpper = maxEps < MAX_EPSILON ? maxEps : MAX_EPSILON;
         int256 eps = bound(epsilonRaw, MIN_EPSILON, epsUpper);
 
-        (bool callOk, bool putOk, bool vegaOk) = Certoraspec.verifyAllInvariants(p, sd(eps));
+        (bool callOk, bool putOk, bool vegaOk) = CertoraspecPricing.verifyAllInvariants(p, sd(eps));
         assertTrue(callOk, "Call spot monotonicity must hold");
         assertTrue(putOk, "Put spot monotonicity must hold");
         assertTrue(vegaOk, "Vega monotonicity must hold");
@@ -229,7 +229,7 @@ contract CertoraspecFuzzTest is Test {
         int256 timeRaw
     ) public pure {
         PricingParams memory p = _boundParams(spotRaw, strikeRaw, volRaw, rateRaw, timeRaw);
-        SD59x18 delta = Certoraspec.callDelta(p);
+        SD59x18 delta = CertoraspecPricing.callDelta(p);
         assertTrue(delta.gte(ZERO), "Call delta must be >= 0");
         assertTrue(delta.lte(sd(ONE)), "Call delta must be <= 1");
     }
@@ -243,7 +243,7 @@ contract CertoraspecFuzzTest is Test {
         int256 timeRaw
     ) public pure {
         PricingParams memory p = _boundParams(spotRaw, strikeRaw, volRaw, rateRaw, timeRaw);
-        SD59x18 delta = Certoraspec.putDelta(p);
+        SD59x18 delta = CertoraspecPricing.putDelta(p);
         assertTrue(delta.gte(sd(-ONE)), "Put delta must be >= -1");
         assertTrue(delta.lte(ZERO), "Put delta must be <= 0");
     }
@@ -261,7 +261,7 @@ contract CertoraspecFuzzTest is Test {
         int256 timeRaw
     ) public pure {
         PricingParams memory p = _boundParams(spotRaw, strikeRaw, volRaw, rateRaw, timeRaw);
-        SD59x18 g = Certoraspec.gamma(p);
+        SD59x18 g = CertoraspecPricing.gamma(p);
         assertTrue(g.gte(ZERO), "Gamma must be >= 0");
     }
 
@@ -283,7 +283,7 @@ contract CertoraspecFuzzTest is Test {
         int256 toleranceRaw = SD59x18.unwrap(p.spot) / 1000;
         if (toleranceRaw < 1e15) toleranceRaw = 1e15; // floor at 0.001
 
-        (bool holds,) = Certoraspec.verifyPutCallParity(p, sd(toleranceRaw));
+        (bool holds,) = CertoraspecPricing.verifyPutCallParity(p, sd(toleranceRaw));
         assertTrue(holds, "Put-call parity must hold within 0.1% tolerance");
     }
 
@@ -300,7 +300,7 @@ contract CertoraspecFuzzTest is Test {
         int256 timeRaw
     ) public pure {
         PricingParams memory p = _boundParams(spotRaw, strikeRaw, volRaw, rateRaw, timeRaw);
-        SD59x18 price = Certoraspec.priceCall(p);
+        SD59x18 price = CertoraspecPricing.priceCall(p);
         assertTrue(price.gte(ZERO), "Call price must be >= 0");
     }
 
@@ -313,7 +313,7 @@ contract CertoraspecFuzzTest is Test {
         int256 timeRaw
     ) public pure {
         PricingParams memory p = _boundParams(spotRaw, strikeRaw, volRaw, rateRaw, timeRaw);
-        SD59x18 price = Certoraspec.pricePut(p);
+        SD59x18 price = CertoraspecPricing.pricePut(p);
         assertTrue(price.gte(ZERO), "Put price must be >= 0");
     }
 }

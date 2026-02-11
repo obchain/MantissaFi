@@ -18,6 +18,10 @@ jobs:
     name: Formal Verification
     runs-on: ubuntu-latest
     if: ${{ secrets.CERTORAKEY != '' }}
+    strategy:
+      matrix:
+        spec: [Solvency, PutCallParity, NoValueExtraction]
+      fail-fast: false
     steps:
       - uses: actions/checkout@v4
         with:
@@ -40,9 +44,9 @@ jobs:
           solc-select install 0.8.24
           solc-select use 0.8.24
 
-      - name: Run Solvency Verification
+      - name: Run ${{ matrix.spec }} Verification
         env:
           CERTORAKEY: ${{ secrets.CERTORAKEY }}
         run: |
-          certoraRun certora/conf/Solvency.conf \
-            --msg "CI: Solvency Invariant - ${{ github.sha }}"
+          certoraRun certora/conf/${{ matrix.spec }}.conf \
+            --msg "CI: ${{ matrix.spec }} - ${{ github.sha }}"

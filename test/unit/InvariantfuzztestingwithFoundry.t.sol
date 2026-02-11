@@ -15,19 +15,11 @@ contract InvariantFuzzWrapper {
         InvariantFuzzTestingWithFoundry.enforceSolvency(pool);
     }
 
-    function availableLiquidity(InvariantFuzzTestingWithFoundry.PoolState memory pool)
-        external
-        pure
-        returns (SD59x18)
-    {
+    function availableLiquidity(InvariantFuzzTestingWithFoundry.PoolState memory pool) external pure returns (SD59x18) {
         return InvariantFuzzTestingWithFoundry.availableLiquidity(pool);
     }
 
-    function computeUtilization(InvariantFuzzTestingWithFoundry.PoolState memory pool)
-        external
-        pure
-        returns (SD59x18)
-    {
+    function computeUtilization(InvariantFuzzTestingWithFoundry.PoolState memory pool) external pure returns (SD59x18) {
         return InvariantFuzzTestingWithFoundry.computeUtilization(pool);
     }
 
@@ -48,7 +40,9 @@ contract InvariantFuzzWrapper {
         uint256 vaultRecordedMinted,
         uint256 vaultRecordedExercised
     ) external pure returns (InvariantFuzzTestingWithFoundry.SupplySnapshot memory) {
-        return InvariantFuzzTestingWithFoundry.buildSupplySnapshot(seriesArray, vaultRecordedMinted, vaultRecordedExercised);
+        return InvariantFuzzTestingWithFoundry.buildSupplySnapshot(
+                seriesArray, vaultRecordedMinted, vaultRecordedExercised
+            );
     }
 
     function checkSeriesExerciseBound(InvariantFuzzTestingWithFoundry.SeriesSupply memory supply)
@@ -135,11 +129,7 @@ contract InvariantFuzzWrapper {
         InvariantFuzzTestingWithFoundry.validatePoolState(pool);
     }
 
-    function checkUtilizationBound(InvariantFuzzTestingWithFoundry.PoolState memory pool)
-        external
-        pure
-        returns (bool)
-    {
+    function checkUtilizationBound(InvariantFuzzTestingWithFoundry.PoolState memory pool) external pure returns (bool) {
         return InvariantFuzzTestingWithFoundry.checkUtilizationBound(pool);
     }
 
@@ -191,26 +181,30 @@ contract InvariantfuzztestingwithFoundryTest is Test {
     // =========================================================================
 
     function test_checkSolvency_holdsWhenAssetsExceedCollateral() public view {
-        InvariantFuzzTestingWithFoundry.PoolState memory pool =
-            InvariantFuzzTestingWithFoundry.PoolState({ totalAssets: ASSETS_1000, lockedCollateral: COLLATERAL_300, totalShares: SHARES_100 });
+        InvariantFuzzTestingWithFoundry.PoolState memory pool = InvariantFuzzTestingWithFoundry.PoolState({
+            totalAssets: ASSETS_1000, lockedCollateral: COLLATERAL_300, totalShares: SHARES_100
+        });
         assertTrue(wrapper.checkSolvency(pool));
     }
 
     function test_checkSolvency_holdsWhenEqual() public view {
-        InvariantFuzzTestingWithFoundry.PoolState memory pool =
-            InvariantFuzzTestingWithFoundry.PoolState({ totalAssets: ASSETS_500, lockedCollateral: ASSETS_500, totalShares: SHARES_100 });
+        InvariantFuzzTestingWithFoundry.PoolState memory pool = InvariantFuzzTestingWithFoundry.PoolState({
+            totalAssets: ASSETS_500, lockedCollateral: ASSETS_500, totalShares: SHARES_100
+        });
         assertTrue(wrapper.checkSolvency(pool));
     }
 
     function test_checkSolvency_failsWhenCollateralExceedsAssets() public view {
-        InvariantFuzzTestingWithFoundry.PoolState memory pool =
-            InvariantFuzzTestingWithFoundry.PoolState({ totalAssets: COLLATERAL_300, lockedCollateral: ASSETS_1000, totalShares: SHARES_100 });
+        InvariantFuzzTestingWithFoundry.PoolState memory pool = InvariantFuzzTestingWithFoundry.PoolState({
+            totalAssets: COLLATERAL_300, lockedCollateral: ASSETS_1000, totalShares: SHARES_100
+        });
         assertFalse(wrapper.checkSolvency(pool));
     }
 
     function test_enforceSolvency_revertsOnViolation() public {
-        InvariantFuzzTestingWithFoundry.PoolState memory pool =
-            InvariantFuzzTestingWithFoundry.PoolState({ totalAssets: COLLATERAL_300, lockedCollateral: ASSETS_1000, totalShares: SHARES_100 });
+        InvariantFuzzTestingWithFoundry.PoolState memory pool = InvariantFuzzTestingWithFoundry.PoolState({
+            totalAssets: COLLATERAL_300, lockedCollateral: ASSETS_1000, totalShares: SHARES_100
+        });
         vm.expectRevert(
             abi.encodeWithSelector(
                 InvariantFuzzTestingWithFoundry.InvariantFuzz__SolvencyViolation.selector,
@@ -222,28 +216,32 @@ contract InvariantfuzztestingwithFoundryTest is Test {
     }
 
     function test_enforceSolvency_doesNotRevertWhenValid() public view {
-        InvariantFuzzTestingWithFoundry.PoolState memory pool =
-            InvariantFuzzTestingWithFoundry.PoolState({ totalAssets: ASSETS_1000, lockedCollateral: COLLATERAL_300, totalShares: SHARES_100 });
+        InvariantFuzzTestingWithFoundry.PoolState memory pool = InvariantFuzzTestingWithFoundry.PoolState({
+            totalAssets: ASSETS_1000, lockedCollateral: COLLATERAL_300, totalShares: SHARES_100
+        });
         wrapper.enforceSolvency(pool);
     }
 
     function test_availableLiquidity_computesCorrectly() public view {
-        InvariantFuzzTestingWithFoundry.PoolState memory pool =
-            InvariantFuzzTestingWithFoundry.PoolState({ totalAssets: ASSETS_1000, lockedCollateral: COLLATERAL_300, totalShares: SHARES_100 });
+        InvariantFuzzTestingWithFoundry.PoolState memory pool = InvariantFuzzTestingWithFoundry.PoolState({
+            totalAssets: ASSETS_1000, lockedCollateral: COLLATERAL_300, totalShares: SHARES_100
+        });
         SD59x18 available = wrapper.availableLiquidity(pool);
         assertEq(SD59x18.unwrap(available), 700e18);
     }
 
     function test_availableLiquidity_returnsZeroWhenInsolvent() public view {
-        InvariantFuzzTestingWithFoundry.PoolState memory pool =
-            InvariantFuzzTestingWithFoundry.PoolState({ totalAssets: COLLATERAL_300, lockedCollateral: ASSETS_1000, totalShares: SHARES_100 });
+        InvariantFuzzTestingWithFoundry.PoolState memory pool = InvariantFuzzTestingWithFoundry.PoolState({
+            totalAssets: COLLATERAL_300, lockedCollateral: ASSETS_1000, totalShares: SHARES_100
+        });
         SD59x18 available = wrapper.availableLiquidity(pool);
         assertEq(SD59x18.unwrap(available), 0);
     }
 
     function test_computeUtilization_computesCorrectly() public view {
-        InvariantFuzzTestingWithFoundry.PoolState memory pool =
-            InvariantFuzzTestingWithFoundry.PoolState({ totalAssets: ASSETS_1000, lockedCollateral: COLLATERAL_300, totalShares: SHARES_100 });
+        InvariantFuzzTestingWithFoundry.PoolState memory pool = InvariantFuzzTestingWithFoundry.PoolState({
+            totalAssets: ASSETS_1000, lockedCollateral: COLLATERAL_300, totalShares: SHARES_100
+        });
         SD59x18 util = wrapper.computeUtilization(pool);
         // 300 / 1000 = 0.3
         assertEq(SD59x18.unwrap(util), 300000000000000000);
@@ -310,25 +308,34 @@ contract InvariantfuzztestingwithFoundryTest is Test {
     function test_buildSupplySnapshot_aggregatesCorrectly() public view {
         InvariantFuzzTestingWithFoundry.SeriesSupply[] memory seriesArray =
             new InvariantFuzzTestingWithFoundry.SeriesSupply[](3);
-        seriesArray[0] = InvariantFuzzTestingWithFoundry.SeriesSupply({ seriesId: 1, totalMinted: 10, totalExercised: 2, collateralPerOption: ONE });
-        seriesArray[1] = InvariantFuzzTestingWithFoundry.SeriesSupply({ seriesId: 2, totalMinted: 20, totalExercised: 5, collateralPerOption: ONE });
-        seriesArray[2] = InvariantFuzzTestingWithFoundry.SeriesSupply({ seriesId: 3, totalMinted: 30, totalExercised: 10, collateralPerOption: ONE });
+        seriesArray[0] = InvariantFuzzTestingWithFoundry.SeriesSupply({
+            seriesId: 1, totalMinted: 10, totalExercised: 2, collateralPerOption: ONE
+        });
+        seriesArray[1] = InvariantFuzzTestingWithFoundry.SeriesSupply({
+            seriesId: 2, totalMinted: 20, totalExercised: 5, collateralPerOption: ONE
+        });
+        seriesArray[2] = InvariantFuzzTestingWithFoundry.SeriesSupply({
+            seriesId: 3, totalMinted: 30, totalExercised: 10, collateralPerOption: ONE
+        });
 
-        InvariantFuzzTestingWithFoundry.SupplySnapshot memory snapshot = wrapper.buildSupplySnapshot(seriesArray, 60, 17);
+        InvariantFuzzTestingWithFoundry.SupplySnapshot memory snapshot =
+            wrapper.buildSupplySnapshot(seriesArray, 60, 17);
         assertEq(snapshot.totalMintedAcrossAll, 60);
         assertEq(snapshot.totalExercisedAcrossAll, 17);
         assertEq(snapshot.seriesCount, 3);
     }
 
     function test_checkSeriesExerciseBound_holdsWhenExercisedLessThanMinted() public view {
-        InvariantFuzzTestingWithFoundry.SeriesSupply memory supply =
-            InvariantFuzzTestingWithFoundry.SeriesSupply({ seriesId: 1, totalMinted: 100, totalExercised: 50, collateralPerOption: ONE });
+        InvariantFuzzTestingWithFoundry.SeriesSupply memory supply = InvariantFuzzTestingWithFoundry.SeriesSupply({
+            seriesId: 1, totalMinted: 100, totalExercised: 50, collateralPerOption: ONE
+        });
         assertTrue(wrapper.checkSeriesExerciseBound(supply));
     }
 
     function test_checkSeriesExerciseBound_failsWhenExercisedExceedsMinted() public view {
-        InvariantFuzzTestingWithFoundry.SeriesSupply memory supply =
-            InvariantFuzzTestingWithFoundry.SeriesSupply({ seriesId: 1, totalMinted: 50, totalExercised: 100, collateralPerOption: ONE });
+        InvariantFuzzTestingWithFoundry.SeriesSupply memory supply = InvariantFuzzTestingWithFoundry.SeriesSupply({
+            seriesId: 1, totalMinted: 50, totalExercised: 100, collateralPerOption: ONE
+        });
         assertFalse(wrapper.checkSeriesExerciseBound(supply));
     }
 
@@ -380,8 +387,9 @@ contract InvariantfuzztestingwithFoundryTest is Test {
     // =========================================================================
 
     function test_applyDeposit_increasesAssets() public view {
-        InvariantFuzzTestingWithFoundry.PoolState memory pool =
-            InvariantFuzzTestingWithFoundry.PoolState({ totalAssets: ASSETS_1000, lockedCollateral: COLLATERAL_300, totalShares: SHARES_100 });
+        InvariantFuzzTestingWithFoundry.PoolState memory pool = InvariantFuzzTestingWithFoundry.PoolState({
+            totalAssets: ASSETS_1000, lockedCollateral: COLLATERAL_300, totalShares: SHARES_100
+        });
         InvariantFuzzTestingWithFoundry.PoolState memory updated = wrapper.applyDeposit(pool, DEPOSIT_200);
         assertEq(SD59x18.unwrap(updated.totalAssets), 1200e18);
         assertEq(SD59x18.unwrap(updated.lockedCollateral), 300e18);
@@ -401,8 +409,9 @@ contract InvariantfuzztestingwithFoundryTest is Test {
     }
 
     function test_applyWithdrawal_decreasesAssets() public view {
-        InvariantFuzzTestingWithFoundry.PoolState memory pool =
-            InvariantFuzzTestingWithFoundry.PoolState({ totalAssets: ASSETS_1000, lockedCollateral: COLLATERAL_300, totalShares: SHARES_100 });
+        InvariantFuzzTestingWithFoundry.PoolState memory pool = InvariantFuzzTestingWithFoundry.PoolState({
+            totalAssets: ASSETS_1000, lockedCollateral: COLLATERAL_300, totalShares: SHARES_100
+        });
         SD59x18 withdrawAmount = sd(200e18);
         InvariantFuzzTestingWithFoundry.PoolState memory updated = wrapper.applyWithdrawal(pool, withdrawAmount);
         assertEq(SD59x18.unwrap(updated.totalAssets), 800e18);
@@ -410,8 +419,9 @@ contract InvariantfuzztestingwithFoundryTest is Test {
     }
 
     function test_applyWithdrawal_revertsWhenExceedingAvailable() public {
-        InvariantFuzzTestingWithFoundry.PoolState memory pool =
-            InvariantFuzzTestingWithFoundry.PoolState({ totalAssets: ASSETS_1000, lockedCollateral: COLLATERAL_300, totalShares: SHARES_100 });
+        InvariantFuzzTestingWithFoundry.PoolState memory pool = InvariantFuzzTestingWithFoundry.PoolState({
+            totalAssets: ASSETS_1000, lockedCollateral: COLLATERAL_300, totalShares: SHARES_100
+        });
         // Available is 700, trying to withdraw 800
         vm.expectRevert(
             abi.encodeWithSelector(
@@ -422,8 +432,9 @@ contract InvariantfuzztestingwithFoundryTest is Test {
     }
 
     function test_applyMint_locksCollateral() public view {
-        InvariantFuzzTestingWithFoundry.PoolState memory pool =
-            InvariantFuzzTestingWithFoundry.PoolState({ totalAssets: ASSETS_1000, lockedCollateral: COLLATERAL_300, totalShares: SHARES_100 });
+        InvariantFuzzTestingWithFoundry.PoolState memory pool = InvariantFuzzTestingWithFoundry.PoolState({
+            totalAssets: ASSETS_1000, lockedCollateral: COLLATERAL_300, totalShares: SHARES_100
+        });
         SD59x18 collateral = sd(200e18);
         InvariantFuzzTestingWithFoundry.PoolState memory updated = wrapper.applyMint(pool, collateral, PREMIUM_10);
         assertEq(SD59x18.unwrap(updated.lockedCollateral), 500e18);
@@ -431,8 +442,9 @@ contract InvariantfuzztestingwithFoundryTest is Test {
     }
 
     function test_applyMint_revertsWhenInsufficientLiquidity() public {
-        InvariantFuzzTestingWithFoundry.PoolState memory pool =
-            InvariantFuzzTestingWithFoundry.PoolState({ totalAssets: ASSETS_1000, lockedCollateral: COLLATERAL_300, totalShares: SHARES_100 });
+        InvariantFuzzTestingWithFoundry.PoolState memory pool = InvariantFuzzTestingWithFoundry.PoolState({
+            totalAssets: ASSETS_1000, lockedCollateral: COLLATERAL_300, totalShares: SHARES_100
+        });
         // Available is 700, trying to lock 800
         vm.expectRevert(
             abi.encodeWithSelector(
@@ -443,25 +455,29 @@ contract InvariantfuzztestingwithFoundryTest is Test {
     }
 
     function test_applyMint_revertsOnZeroCollateral() public {
-        InvariantFuzzTestingWithFoundry.PoolState memory pool =
-            InvariantFuzzTestingWithFoundry.PoolState({ totalAssets: ASSETS_1000, lockedCollateral: COLLATERAL_300, totalShares: SHARES_100 });
+        InvariantFuzzTestingWithFoundry.PoolState memory pool = InvariantFuzzTestingWithFoundry.PoolState({
+            totalAssets: ASSETS_1000, lockedCollateral: COLLATERAL_300, totalShares: SHARES_100
+        });
         vm.expectRevert(InvariantFuzzTestingWithFoundry.InvariantFuzz__ZeroMintAmount.selector);
         wrapper.applyMint(pool, ZERO, PREMIUM_10);
     }
 
     function test_applyExercise_releasesCollateralAndPaysOut() public view {
-        InvariantFuzzTestingWithFoundry.PoolState memory pool =
-            InvariantFuzzTestingWithFoundry.PoolState({ totalAssets: ASSETS_1000, lockedCollateral: COLLATERAL_500, totalShares: SHARES_100 });
+        InvariantFuzzTestingWithFoundry.PoolState memory pool = InvariantFuzzTestingWithFoundry.PoolState({
+            totalAssets: ASSETS_1000, lockedCollateral: COLLATERAL_500, totalShares: SHARES_100
+        });
         SD59x18 payout = sd(100e18);
         SD59x18 collateralReleased = sd(200e18);
-        InvariantFuzzTestingWithFoundry.PoolState memory updated = wrapper.applyExercise(pool, payout, collateralReleased);
+        InvariantFuzzTestingWithFoundry.PoolState memory updated =
+            wrapper.applyExercise(pool, payout, collateralReleased);
         assertEq(SD59x18.unwrap(updated.totalAssets), 900e18);
         assertEq(SD59x18.unwrap(updated.lockedCollateral), 300e18);
     }
 
     function test_applyExpiry_releasesCollateralWithoutPayout() public view {
-        InvariantFuzzTestingWithFoundry.PoolState memory pool =
-            InvariantFuzzTestingWithFoundry.PoolState({ totalAssets: ASSETS_1000, lockedCollateral: COLLATERAL_500, totalShares: SHARES_100 });
+        InvariantFuzzTestingWithFoundry.PoolState memory pool = InvariantFuzzTestingWithFoundry.PoolState({
+            totalAssets: ASSETS_1000, lockedCollateral: COLLATERAL_500, totalShares: SHARES_100
+        });
         SD59x18 collateralReleased = sd(200e18);
         InvariantFuzzTestingWithFoundry.PoolState memory updated = wrapper.applyExpiry(pool, collateralReleased);
         assertEq(SD59x18.unwrap(updated.totalAssets), 1000e18);
@@ -473,8 +489,9 @@ contract InvariantfuzztestingwithFoundryTest is Test {
     // =========================================================================
 
     function test_checkAllInvariants_allHoldForValidState() public view {
-        InvariantFuzzTestingWithFoundry.PoolState memory pool =
-            InvariantFuzzTestingWithFoundry.PoolState({ totalAssets: ASSETS_1000, lockedCollateral: COLLATERAL_300, totalShares: SHARES_100 });
+        InvariantFuzzTestingWithFoundry.PoolState memory pool = InvariantFuzzTestingWithFoundry.PoolState({
+            totalAssets: ASSETS_1000, lockedCollateral: COLLATERAL_300, totalShares: SHARES_100
+        });
         InvariantFuzzTestingWithFoundry.SupplySnapshot memory snapshot = InvariantFuzzTestingWithFoundry.SupplySnapshot({
             seriesCount: 1,
             totalMintedAcrossAll: 100,
@@ -491,8 +508,9 @@ contract InvariantfuzztestingwithFoundryTest is Test {
     }
 
     function test_checkAllInvariants_failsOnSolvencyViolation() public view {
-        InvariantFuzzTestingWithFoundry.PoolState memory pool =
-            InvariantFuzzTestingWithFoundry.PoolState({ totalAssets: COLLATERAL_300, lockedCollateral: ASSETS_1000, totalShares: SHARES_100 });
+        InvariantFuzzTestingWithFoundry.PoolState memory pool = InvariantFuzzTestingWithFoundry.PoolState({
+            totalAssets: COLLATERAL_300, lockedCollateral: ASSETS_1000, totalShares: SHARES_100
+        });
         InvariantFuzzTestingWithFoundry.SupplySnapshot memory snapshot =
             InvariantFuzzTestingWithFoundry.createConsistentSnapshot(100, 50);
         InvariantFuzzTestingWithFoundry.InvariantCheckResult memory result =
@@ -513,7 +531,8 @@ contract InvariantfuzztestingwithFoundryTest is Test {
     }
 
     function test_createPool_setsValues() public view {
-        InvariantFuzzTestingWithFoundry.PoolState memory pool = wrapper.createPool(ASSETS_1000, COLLATERAL_300, SHARES_100);
+        InvariantFuzzTestingWithFoundry.PoolState memory pool =
+            wrapper.createPool(ASSETS_1000, COLLATERAL_300, SHARES_100);
         assertEq(SD59x18.unwrap(pool.totalAssets), 1000e18);
         assertEq(SD59x18.unwrap(pool.lockedCollateral), 300e18);
         assertEq(SD59x18.unwrap(pool.totalShares), 100e18);
@@ -529,8 +548,9 @@ contract InvariantfuzztestingwithFoundryTest is Test {
     }
 
     function test_validatePoolState_revertsOnNegativeAssets() public {
-        InvariantFuzzTestingWithFoundry.PoolState memory pool =
-            InvariantFuzzTestingWithFoundry.PoolState({ totalAssets: sd(-1e18), lockedCollateral: ZERO, totalShares: ZERO });
+        InvariantFuzzTestingWithFoundry.PoolState memory pool = InvariantFuzzTestingWithFoundry.PoolState({
+            totalAssets: sd(-1e18), lockedCollateral: ZERO, totalShares: ZERO
+        });
         vm.expectRevert(
             abi.encodeWithSelector(InvariantFuzzTestingWithFoundry.InvariantFuzz__NegativeTotalAssets.selector, -1e18)
         );
@@ -538,8 +558,9 @@ contract InvariantfuzztestingwithFoundryTest is Test {
     }
 
     function test_validatePoolState_revertsOnNegativeCollateral() public {
-        InvariantFuzzTestingWithFoundry.PoolState memory pool =
-            InvariantFuzzTestingWithFoundry.PoolState({ totalAssets: ASSETS_1000, lockedCollateral: sd(-1e18), totalShares: SHARES_100 });
+        InvariantFuzzTestingWithFoundry.PoolState memory pool = InvariantFuzzTestingWithFoundry.PoolState({
+            totalAssets: ASSETS_1000, lockedCollateral: sd(-1e18), totalShares: SHARES_100
+        });
         vm.expectRevert(
             abi.encodeWithSelector(
                 InvariantFuzzTestingWithFoundry.InvariantFuzz__NegativeLockedCollateral.selector, -1e18
@@ -549,8 +570,9 @@ contract InvariantfuzztestingwithFoundryTest is Test {
     }
 
     function test_checkUtilizationBound_holdsForValidPool() public view {
-        InvariantFuzzTestingWithFoundry.PoolState memory pool =
-            InvariantFuzzTestingWithFoundry.PoolState({ totalAssets: ASSETS_1000, lockedCollateral: COLLATERAL_300, totalShares: SHARES_100 });
+        InvariantFuzzTestingWithFoundry.PoolState memory pool = InvariantFuzzTestingWithFoundry.PoolState({
+            totalAssets: ASSETS_1000, lockedCollateral: COLLATERAL_300, totalShares: SHARES_100
+        });
         assertTrue(wrapper.checkUtilizationBound(pool));
     }
 
@@ -561,8 +583,9 @@ contract InvariantfuzztestingwithFoundryTest is Test {
 
     function test_enforceUtilizationBound_revertsWhenExceeded() public {
         // Collateral > totalAssets means utilization > 100%
-        InvariantFuzzTestingWithFoundry.PoolState memory pool =
-            InvariantFuzzTestingWithFoundry.PoolState({ totalAssets: COLLATERAL_300, lockedCollateral: ASSETS_1000, totalShares: SHARES_100 });
+        InvariantFuzzTestingWithFoundry.PoolState memory pool = InvariantFuzzTestingWithFoundry.PoolState({
+            totalAssets: COLLATERAL_300, lockedCollateral: ASSETS_1000, totalShares: SHARES_100
+        });
         vm.expectRevert();
         wrapper.enforceUtilizationBound(pool);
     }

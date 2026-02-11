@@ -224,10 +224,11 @@ library BacktestLSIVSagainsthistoricalDeribitIVdata {
     /// @param timeToExpiry Time to expiration in years
     /// @param termCoeff Term structure coefficient
     /// @return adjustment The term structure adjustment
-    function computeTermStructureAdjustment(
-        SD59x18 timeToExpiry,
-        SD59x18 termCoeff
-    ) internal pure returns (SD59x18 adjustment) {
+    function computeTermStructureAdjustment(SD59x18 timeToExpiry, SD59x18 termCoeff)
+        internal
+        pure
+        returns (SD59x18 adjustment)
+    {
         // √T scaling for term structure
         SD59x18 sqrtT = timeToExpiry.sqrt();
         adjustment = termCoeff.mul(sqrtT);
@@ -254,10 +255,11 @@ library BacktestLSIVSagainsthistoricalDeribitIVdata {
     /// @param dataPoints Array of historical data points to test against
     /// @param params Calibration parameters to use
     /// @return metrics Computed error metrics (RMSE, MAE, Max Deviation, Mean Bias)
-    function runBacktest(
-        DataPoint[] memory dataPoints,
-        CalibrationParams memory params
-    ) internal pure returns (ErrorMetrics memory metrics) {
+    function runBacktest(DataPoint[] memory dataPoints, CalibrationParams memory params)
+        internal
+        pure
+        returns (ErrorMetrics memory metrics)
+    {
         uint256 n = dataPoints.length;
         if (n == 0) revert EmptyArrays();
 
@@ -270,14 +272,8 @@ library BacktestLSIVSagainsthistoricalDeribitIVdata {
             DataPoint memory dp = dataPoints[i];
 
             // Compute LSIVS prediction
-            SD59x18 predicted = computeLSIVS(
-                dp.spotPrice,
-                dp.strikePrice,
-                dp.timeToExpiry,
-                dp.realizedVol,
-                dp.utilization,
-                params
-            );
+            SD59x18 predicted =
+                computeLSIVS(dp.spotPrice, dp.strikePrice, dp.timeToExpiry, dp.realizedVol, dp.utilization, params);
 
             // Compute error
             SD59x18 error = predicted.sub(dp.deribitIV);
@@ -313,10 +309,11 @@ library BacktestLSIVSagainsthistoricalDeribitIVdata {
     /// @param predictedIVs Array of LSIVS predictions
     /// @param actualIVs Array of historical Deribit IVs
     /// @return metrics Computed error metrics
-    function computeErrorMetrics(
-        SD59x18[] memory predictedIVs,
-        SD59x18[] memory actualIVs
-    ) internal pure returns (ErrorMetrics memory metrics) {
+    function computeErrorMetrics(SD59x18[] memory predictedIVs, SD59x18[] memory actualIVs)
+        internal
+        pure
+        returns (ErrorMetrics memory metrics)
+    {
         uint256 n = predictedIVs.length;
         if (n == 0) revert EmptyArrays();
         if (n != actualIVs.length) revert ArrayLengthMismatch();
@@ -351,7 +348,11 @@ library BacktestLSIVSagainsthistoricalDeribitIVdata {
     /// @param predictedIVs Array of predicted IVs
     /// @param actualIVs Array of actual IVs
     /// @return rmse The RMSE value
-    function computeRMSE(SD59x18[] memory predictedIVs, SD59x18[] memory actualIVs) internal pure returns (SD59x18 rmse) {
+    function computeRMSE(SD59x18[] memory predictedIVs, SD59x18[] memory actualIVs)
+        internal
+        pure
+        returns (SD59x18 rmse)
+    {
         uint256 n = predictedIVs.length;
         if (n == 0) revert EmptyArrays();
         if (n != actualIVs.length) revert ArrayLengthMismatch();
@@ -369,7 +370,11 @@ library BacktestLSIVSagainsthistoricalDeribitIVdata {
     /// @param predictedIVs Array of predicted IVs
     /// @param actualIVs Array of actual IVs
     /// @return mae The MAE value
-    function computeMAE(SD59x18[] memory predictedIVs, SD59x18[] memory actualIVs) internal pure returns (SD59x18 mae) {
+    function computeMAE(SD59x18[] memory predictedIVs, SD59x18[] memory actualIVs)
+        internal
+        pure
+        returns (SD59x18 mae)
+    {
         uint256 n = predictedIVs.length;
         if (n == 0) revert EmptyArrays();
         if (n != actualIVs.length) revert ArrayLengthMismatch();
@@ -387,10 +392,11 @@ library BacktestLSIVSagainsthistoricalDeribitIVdata {
     /// @param predictedIVs Array of predicted IVs
     /// @param actualIVs Array of actual IVs
     /// @return maxDev The maximum deviation
-    function computeMaxDeviation(
-        SD59x18[] memory predictedIVs,
-        SD59x18[] memory actualIVs
-    ) internal pure returns (SD59x18 maxDev) {
+    function computeMaxDeviation(SD59x18[] memory predictedIVs, SD59x18[] memory actualIVs)
+        internal
+        pure
+        returns (SD59x18 maxDev)
+    {
         uint256 n = predictedIVs.length;
         if (n == 0) revert EmptyArrays();
         if (n != actualIVs.length) revert ArrayLengthMismatch();
@@ -463,12 +469,11 @@ library BacktestLSIVSagainsthistoricalDeribitIVdata {
     /// @param timeToExpiry Time to expiration in years
     /// @param realizedVol Realized volatility (annualized)
     /// @return fwdMoneyness Forward log-moneyness normalized by vol√T
-    function computeForwardMoneyness(
-        SD59x18 spotPrice,
-        SD59x18 strikePrice,
-        SD59x18 timeToExpiry,
-        SD59x18 realizedVol
-    ) internal pure returns (SD59x18 fwdMoneyness) {
+    function computeForwardMoneyness(SD59x18 spotPrice, SD59x18 strikePrice, SD59x18 timeToExpiry, SD59x18 realizedVol)
+        internal
+        pure
+        returns (SD59x18 fwdMoneyness)
+    {
         if (spotPrice.lte(ZERO)) revert InvalidSpotPrice();
         if (strikePrice.lte(ZERO)) revert InvalidStrikePrice();
         if (timeToExpiry.lte(ZERO)) revert InvalidTimeToExpiry();
@@ -603,10 +608,11 @@ library BacktestLSIVSagainsthistoricalDeribitIVdata {
     /// @param predictedIVs Array of predicted IVs
     /// @param actualIVs Array of actual IVs
     /// @return percentErrors Array of percentage errors ((pred - actual) / actual)
-    function computePercentageErrors(
-        SD59x18[] memory predictedIVs,
-        SD59x18[] memory actualIVs
-    ) internal pure returns (SD59x18[] memory percentErrors) {
+    function computePercentageErrors(SD59x18[] memory predictedIVs, SD59x18[] memory actualIVs)
+        internal
+        pure
+        returns (SD59x18[] memory percentErrors)
+    {
         uint256 n = predictedIVs.length;
         if (n == 0) revert EmptyArrays();
         if (n != actualIVs.length) revert ArrayLengthMismatch();
@@ -626,7 +632,11 @@ library BacktestLSIVSagainsthistoricalDeribitIVdata {
     /// @param predictedIVs Array of predicted IVs
     /// @param actualIVs Array of actual IVs
     /// @return mape The MAPE value
-    function computeMAPE(SD59x18[] memory predictedIVs, SD59x18[] memory actualIVs) internal pure returns (SD59x18 mape) {
+    function computeMAPE(SD59x18[] memory predictedIVs, SD59x18[] memory actualIVs)
+        internal
+        pure
+        returns (SD59x18 mape)
+    {
         uint256 n = predictedIVs.length;
         if (n == 0) revert EmptyArrays();
         if (n != actualIVs.length) revert ArrayLengthMismatch();

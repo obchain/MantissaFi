@@ -23,10 +23,11 @@ contract BacktestWrapper {
         return Backtest.computeRMSE(predictedIVs, actualIVs);
     }
 
-    function runBacktest(
-        Backtest.DataPoint[] memory dataPoints,
-        Backtest.CalibrationParams memory params
-    ) external pure returns (Backtest.ErrorMetrics memory) {
+    function runBacktest(Backtest.DataPoint[] memory dataPoints, Backtest.CalibrationParams memory params)
+        external
+        pure
+        returns (Backtest.ErrorMetrics memory)
+    {
         return Backtest.runBacktest(dataPoints, params);
     }
 
@@ -366,7 +367,7 @@ contract BacktestLSIVSagainsthistoricalDeribitIVdataTest is Test {
             realizedVol: sd(8e17),
             utilization: sd(1e17),
             deribitIV: sd(82e16) // Deribit shows 82%
-        });
+         });
 
         Backtest.CalibrationParams memory params = Backtest.defaultCalibrationParams();
 
@@ -497,8 +498,7 @@ contract BacktestLSIVSagainsthistoricalDeribitIVdataTest is Test {
     }
 
     function test_computeForwardMoneyness() public pure {
-        SD59x18 fwdMoneyness =
-            Backtest.computeForwardMoneyness(sd(2000e18), sd(2200e18), sd(ONE), sd(8e17)); // 1 year, 80% vol
+        SD59x18 fwdMoneyness = Backtest.computeForwardMoneyness(sd(2000e18), sd(2200e18), sd(ONE), sd(8e17)); // 1 year, 80% vol
 
         // fwdMoneyness = ln(2200/2000) / (0.8 * √1) = ln(1.1) / 0.8
         assertTrue(fwdMoneyness.gt(ZERO), "Forward moneyness should be positive for OTM");

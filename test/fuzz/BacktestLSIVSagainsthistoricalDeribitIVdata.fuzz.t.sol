@@ -89,10 +89,12 @@ contract BacktestLSIVSagainsthistoricalDeribitIVdataFuzzTest is Test {
     // ═══════════════════════════════════════════════════════════════════════════
 
     /// @notice Invariant: Symmetric strikes around ATM should have same IV (quadratic skew)
-    function testFuzz_computeLSIVS_SkewSymmetry(uint256 spotSeed, uint256 deviationSeed, uint256 timeSeed, uint256 volSeed)
-        public
-        pure
-    {
+    function testFuzz_computeLSIVS_SkewSymmetry(
+        uint256 spotSeed,
+        uint256 deviationSeed,
+        uint256 timeSeed,
+        uint256 volSeed
+    ) public pure {
         uint256 spot = bound(spotSeed, MIN_PRICE, MAX_PRICE / 2);
         uint256 time = bound(timeSeed, MIN_TIME, MAX_TIME);
         uint256 vol = bound(volSeed, MIN_VOL, MAX_VOL);
@@ -109,8 +111,12 @@ contract BacktestLSIVSagainsthistoricalDeribitIVdataFuzzTest is Test {
         Backtest.CalibrationParams memory params = Backtest.defaultCalibrationParams();
         SD59x18 util = ZERO; // Use zero utilization to isolate skew effect
 
-        SD59x18 ivUp = Backtest.computeLSIVS(sd(int256(spot)), sd(int256(strikeUp)), sd(int256(time)), sd(int256(vol)), util, params);
-        SD59x18 ivDown = Backtest.computeLSIVS(sd(int256(spot)), sd(int256(strikeDown)), sd(int256(time)), sd(int256(vol)), util, params);
+        SD59x18 ivUp = Backtest.computeLSIVS(
+            sd(int256(spot)), sd(int256(strikeUp)), sd(int256(time)), sd(int256(vol)), util, params
+        );
+        SD59x18 ivDown = Backtest.computeLSIVS(
+            sd(int256(spot)), sd(int256(strikeDown)), sd(int256(time)), sd(int256(vol)), util, params
+        );
 
         // Due to quadratic skew (moneyness²), symmetric strikes should have similar IV
         // Allow 1% relative tolerance due to ln() asymmetry at extreme values
@@ -151,8 +157,16 @@ contract BacktestLSIVSagainsthistoricalDeribitIVdataFuzzTest is Test {
 
     /// @notice Invariant: RMSE is always non-negative
     function testFuzz_computeRMSE_NonNegative(
-        uint256 pred0, uint256 pred1, uint256 pred2, uint256 pred3, uint256 pred4,
-        uint256 act0, uint256 act1, uint256 act2, uint256 act3, uint256 act4
+        uint256 pred0,
+        uint256 pred1,
+        uint256 pred2,
+        uint256 pred3,
+        uint256 pred4,
+        uint256 act0,
+        uint256 act1,
+        uint256 act2,
+        uint256 act3,
+        uint256 act4
     ) public pure {
         SD59x18[] memory predicted = new SD59x18[](5);
         SD59x18[] memory actual = new SD59x18[](5);
@@ -180,8 +194,16 @@ contract BacktestLSIVSagainsthistoricalDeribitIVdataFuzzTest is Test {
 
     /// @notice Invariant: Max deviation >= MAE (max of set >= average)
     function testFuzz_maxDeviation_greaterThanOrEqualMAE(
-        uint256 pred0, uint256 pred1, uint256 pred2, uint256 pred3, uint256 pred4,
-        uint256 act0, uint256 act1, uint256 act2, uint256 act3, uint256 act4
+        uint256 pred0,
+        uint256 pred1,
+        uint256 pred2,
+        uint256 pred3,
+        uint256 pred4,
+        uint256 act0,
+        uint256 act1,
+        uint256 act2,
+        uint256 act3,
+        uint256 act4
     ) public pure {
         SD59x18[] memory predicted = new SD59x18[](5);
         SD59x18[] memory actual = new SD59x18[](5);

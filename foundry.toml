@@ -28,4 +28,10 @@ invariant.runs = 256
 # Gas reporting
 gas_reports = ["*"]
 
+# CI profile (inherits from default)
+[profile.ci]
+fuzz.runs = 256
+invariant.runs = 256
+verbosity = 3
+
 # See more config options https://github.com/foundry-rs/foundry/blob/master/crates/config/README.md#all-options

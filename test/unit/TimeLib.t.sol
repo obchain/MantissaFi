@@ -110,18 +110,14 @@ contract TimeLibTest is Test {
     function test_toYears_revertsOnExpiredOption() public {
         uint64 expiry = uint64(block.timestamp - 1);
 
-        vm.expectRevert(
-            abi.encodeWithSelector(TimeLib.TimeLib__ExpiryInPast.selector, expiry, block.timestamp)
-        );
+        vm.expectRevert(abi.encodeWithSelector(TimeLib.TimeLib__ExpiryInPast.selector, expiry, block.timestamp));
         wrapper.toYears(expiry);
     }
 
     function test_toYears_revertsOnCurrentTimestamp() public {
         uint64 expiry = uint64(block.timestamp);
 
-        vm.expectRevert(
-            abi.encodeWithSelector(TimeLib.TimeLib__ExpiryInPast.selector, expiry, block.timestamp)
-        );
+        vm.expectRevert(abi.encodeWithSelector(TimeLib.TimeLib__ExpiryInPast.selector, expiry, block.timestamp));
         wrapper.toYears(expiry);
     }
 
@@ -289,11 +285,7 @@ contract TimeLibTest is Test {
         SD59x18 yearsFromToYears = wrapper.toYears(expiry);
         SD59x18 yearsFromDuration = wrapper.toYearsFromDuration(secondsRemaining);
 
-        assertEq(
-            yearsFromToYears.unwrap(),
-            yearsFromDuration.unwrap(),
-            "toYears and toYearsFromDuration should match"
-        );
+        assertEq(yearsFromToYears.unwrap(), yearsFromDuration.unwrap(), "toYears and toYearsFromDuration should match");
     }
 
     function test_isExpiredAndTimeToExpiry_consistency() public view {

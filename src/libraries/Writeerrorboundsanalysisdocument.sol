@@ -547,18 +547,24 @@ library ErrorBoundsAnalysis {
         SD59x18 d1 = _computeD1(p);
         SD59x18 pdfD1 = CumulativeNormal.pdf(d1);
         SD59x18 d1Err = d1ArithmeticErrorBound(p);
-
         SD59x18 denom = p.spot.mul(p.volatility).mul(p.timeToExpiry.sqrt());
 
-        // δφ from d1 error: |d1|·φ(d1)·δd1
-        SD59x18 pdfError = d1.abs().mul(pdfD1).mul(d1Err);
+        // CDF approximation error propagates to gamma via the PDF derivative chain:
+        // Γ = φ(d1) / denom, so δΓ from CDF error ≈ ε_cdf / denom
+        SD59x18 cdfErr = cdfApproximationErrorBound(d1);
+        gammaError = cdfErr.div(denom);
 
-        // δΓ = δφ/denom + φ·δdenom/denom² ≈ δφ/denom (dominant term)
-        gammaError = pdfError.div(denom);
+        // d1 arithmetic error propagates through φ'(d1):
+        // δφ = max(|d1|, 1) · φ(d1) · δd1 (using max to handle d1≈0 case)
+        SD59x18 d1Factor = d1.abs();
+        if (d1Factor.lt(sd(ONE))) {
+            d1Factor = sd(ONE);
+        }
+        SD59x18 pdfPropError = d1Factor.mul(pdfD1).mul(d1Err);
 
-        // Add ULP errors from division
-        SD59x18 directUlp = sd(4 * ULP); // 4 ops: 3 muls + 1 div
-        gammaError = gammaError.add(directUlp.div(denom));
+        // Add propagated error through division
+        SD59x18 propGammaErr = pdfPropError.div(denom);
+        gammaError = gammaError.add(propGammaErr);
     }
 
     // ═══════════════════════════════════════════════════════════════════════════

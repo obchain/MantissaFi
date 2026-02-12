@@ -382,6 +382,7 @@ contract FeeController is Ownable {
     }
 
     /// @notice Applies a fee rate to a notional amount
+    /// @dev SD59x18.mul handles the 18-decimal scaling, so the result is in the same units as `amount`
     /// @param feeRate The fee rate as SD59x18
     /// @param amount The notional amount
     /// @return fee The fee in the same units as amount
@@ -391,7 +392,7 @@ contract FeeController is Ownable {
 
         // Fee is always non-negative; floor at zero
         int256 feeRaw = feeSD.unwrap();
-        fee = feeRaw > 0 ? uint256(feeRaw) / 1e18 : 0;
+        fee = feeRaw > 0 ? uint256(feeRaw) : 0;
     }
 
     /// @notice Validates fee parameters against bounds
